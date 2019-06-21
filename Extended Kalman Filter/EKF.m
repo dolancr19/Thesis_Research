@@ -8,7 +8,6 @@ dt=1;
 
 %Initialize data matrix
 data=zeros(23,steps);
-
 avg=zeros(6,1);
 
 %Define boundary conditions
@@ -20,8 +19,6 @@ set=.2;
 drift=30;
 x0_vel=stw*cosd(hdg)+set*cosd(drift);
 y0_vel=stw*sind(hdg)+set*sind(drift);
-sog=hypot(x0_vel,y0_vel);
-cog=atan2d(y0_vel,x0_vel);
 
 %Initialize estimated state vector
 x_k_minus=[x0_pos;y0_pos;x0_vel;y0_vel;set*cosd(drift);set*sind(drift)];
@@ -42,7 +39,7 @@ C=U*S;
 %Q=diag([var_Qp,var_Qp,var_Qs,var_Qs,var_Qs,var_Qs]);
 
 %Compute R, the covariance matrix associated with measurement error
-var_Rr=.02^2;
+var_Rr=7^2;
 var_Ra=2^2;
 R=diag([var_Rr,var_Ra]);
 
@@ -52,7 +49,6 @@ F=[1 0 0 0 dt 0;0 1 0 0 0 dt;0 0 0 0 1 0;0 0 0 0 0 1;0 0 0 0 1 0;0 0 0 0 0 1];
 %Initialize error covariance matrix
 var_P=10^2;
 P_minus=diag([var_P,var_P,var_P,var_P,var_P,var_P]);
-
 P_plus=P_minus;
 
 %Initialize measurement vector
@@ -60,15 +56,14 @@ range_x=0;
 range_y=0;
 range=0;
 azi=0;
-
 z_k=[0;0];
 
 %Initialize state vector
 x_k_plus=x_k_minus;
 
-jj=1;
+%jj=1;
 for ii=1:steps
-    
+    %Define courses for simulation
     if ii<=3600
         stw=.5;
         hdg=30;
@@ -80,22 +75,18 @@ for ii=1:steps
         hdg=210;        
     end
     
-    x_vel=stw*cosd(hdg)+set*cosd(drift);
-    y_vel=stw*sind(hdg)+set*sind(drift);
-    sog=hypot(x_vel,y_vel);
-    cog=atan2d(y_vel,x_vel);
-    
     %Calculate noisy estimate vector for next step
     u_k=[stw*dt*cosd(hdg);stw*dt*sind(hdg);stw*cosd(hdg);stw*sind(hdg);0;0];
-    
     w_k=randn(6,1);
+    w_k=C*w_k;
+    
+    %With different sigma values for each measurement
     %[V_Q,D_Q]=eig(Q);
     %[dq,indq] = sort(diag(D_Q),'descend');
     %D_Qs = D_Q(indq,indq);
     %V_Qs = V_Q(:,indq);
-    
     %w_k=V_Qs*D_Qs*w_k;
-    w_k=C*w_k;
+    
     x_k_minus=F*x_k_plus+u_k+w_k;
     
     %Calculate error covariance matrix for next step
@@ -115,47 +106,55 @@ for ii=1:steps
     range_dy=x_k_minus(2,1)*range_denom;
    
     %With velocity
+    %Only works with a single course, not useful
     %cog_dx=-1*x_k_minus(4,1)/(x_k_minus(3,1)^2+x_k_minus(4,1)^2);
     %cog_dy=1/(x_k_minus(3,1)+(x_k_minus(4,1)^2/x_k_minus(3,1)));
     %H=[range_dx range_dy 0 0 0 0;0 0 cog_dx cog_dy 0 0];
     
     %With position
-    cog_dx=-1*x_k_minus(2,1)/(x_k_minus(1,1)^2+x_k_minus(2,1)^2);
-    cog_dy=1/(x_k_minus(1,1)+(x_k_minus(2,1)^2/x_k_minus(1,1)));
-    H=[range_dx range_dy 0 0 0 0;cog_dx cog_dy 0 0 0 0];
-    
-    
-    
+    azi_dx=-1*x_k_minus(2,1)/(x_k_minus(1,1)^2+x_k_minus(2,1)^2);
+    azi_dy=1/(x_k_minus(1,1)+(x_k_minus(2,1)^2/x_k_minus(1,1)));
+    H=[range_dx range_dy 0 0 0 0;azi_dx azi_dy 0 0 0 0];
+        
     %Update Kalman Gain after estimate vector calculation
     K=(P_minus*H')/(H*P_minus*H'+R);
+    
+    %Calculate innovation covariance
     s=H*P_minus*H'+R;
+    
     %Calculate noisy measurement vector
+    x_vel=stw*cosd(hdg)+set*cosd(drift);
+    y_vel=stw*sind(hdg)+set*sind(drift);
+    sog=hypot(x_vel,y_vel);
+    cog=atan2d(y_vel,x_vel);
     range_x=range_x+x_vel*dt;
     range_y=range_y+y_vel*dt;
     range=hypot(range_x,range_y);
     azi=atan2d(range_y,range_x);
     
+    %Determine error in range based on the range value
+    %Tuning will be more complicated than the simple equation below.
+    %Shelved for now.
     %sigma_R=.02*range;
     %if sigma_R<7
     %    var_Rr=sigma_R^2;
     %else
     %    var_Rr=7^2;
     %end
-    var_Rr=7^2;
-    var_Ra=2^2;
-    R=diag([var_Rr,var_Ra]);
+    %R=diag([var_Rr,var_Ra]);
+    
     v_k=randn(2,1);
     [V_R,D_R]=eig(R);
     [d,ind] = sort(diag(D_R),'descend');
     D_Rs = D_R(ind,ind);
     V_Rs = V_R(:,ind);
-    
-    v_k=V_Rs*D_Rs*v_k;
+        v_k=V_Rs*D_Rs*v_k;
     z_k=[range;azi]+v_k;
             
     %Update state vector
-    
+    %Discovered atan2d which made these if loops unnecessary
     %With velocity
+    %Only works with a single course, not useful
     %if x_k_minus(4,1)>0
     %    if x_k_minus(3,1)>0
     %        h_ang=atand(x_k_minus(4,1)/x_k_minus(3,1));
@@ -187,10 +186,14 @@ for ii=1:steps
     
     %With atan2d
     h_ang=atan2d(x_k_minus(2,1),x_k_minus(1,1));
-    
     h=[hypot(x_k_minus(1,1),x_k_minus(2,1));h_ang];
     x_k_plus=x_k_minus+K*(z_k-h);
+    
+    %Calculate innovation
     nu=z_k-h;
+    
+    %Simulate affect of GPS reset
+    %Did not help stabilize the norm of P
     %if jj<= 50
     %    remain = mod(ii,60);
     %    if remain == 0
@@ -199,21 +202,22 @@ for ii=1:steps
     %        jj=jj+1;
     %    end
     %end
-    
-            
-    
+        
     %Update error covariance matrix with new Kalman Gain
     %P_plus=(eye(4)-K*H)*P_minus;
     
     %Joseph stabilized equation
     P_plus=(eye(6)-K*H)*P_minus*(eye(6)-K*H)'+K*R*K';
     
-    remain=mod(ii,300);
+    %Periodically reset velocities to the mean
+    %Seemed to help stabilize error when one course was used.  Was not
+    %useful with multiple courses
+    %remain=mod(ii,300);
     %if remain==0
     %    x_k_plus(3,1)=mean(data(9,:));
     %    x_k_plus(4,1)=mean(data(10,:));
     %    x_k_plus(5,1)=mean(data(11,:));
-     %   x_k_plus(6,1)=mean(data(12,:));
+    %    x_k_plus(6,1)=mean(data(12,:));
     %end
     
     data(7,ii)=x_k_plus(1,1);
