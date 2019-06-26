@@ -146,6 +146,9 @@ for ii=1:steps
     %Update Kalman Gain after estimate vector calculation
     K=(P_minus*H')/(H*P_minus*H'+R);
     
+    %Gain projection with non-linear constraint
+    
+    
     %Calculate innovation covariance
     s=H*P_minus*H'+R;
     
@@ -216,15 +219,14 @@ for ii=1:steps
     h=[hypot(x_k_minus(1,1),x_k_minus(2,1));h_ang];
     x_k_plus=x_k_minus+K*(z_k-h);
     
-    g_x=hypot((x_k_minus(3,1)-x_k_minus(5,1)),(x_k_minus(4,1)-x_k_minus(6,1)));
-    dg_dx=(x_k_minus(3,1)-x_k_minus(5,1))/g_x;
-    dg_dy=(x_k_minus(4,1)-x_k_minus(6,1))/g_x;
-
-    D=[0 0 dg_dx dg_dy -1*dg_dx -1*dg_dy];
-    d=stw-g_x+(D*x_k_minus);
-
-    
-    x_k_plus=x_k_plus-D'/(D*D')*(D*x_k_plus-d);
+    %Estimate projection with non-linear constraint
+    %g_x=hypot((x_k_minus(3,1)-x_k_minus(5,1)),(x_k_minus(4,1)-x_k_minus(6,1)));
+    %dg_dx=(x_k_minus(3,1)-x_k_minus(5,1))/g_x;
+    %dg_dy=(x_k_minus(4,1)-x_k_minus(6,1))/g_x;
+    %D=[0 0 dg_dx dg_dy -1*dg_dx -1*dg_dy];
+    %d=stw-g_x+(D*x_k_minus);
+    %x_k_plus=x_k_plus-D'/(D*D')*(D*x_k_plus-d);
+   
     %Calculate innovation
     nu=z_k-h;
     
