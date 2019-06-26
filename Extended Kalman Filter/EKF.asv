@@ -40,19 +40,18 @@ C=U_P*S_P;
 %Q=diag([var_Qp,var_Qp,var_Qs,var_Qs,var_Qs,var_Qs]);
 
 %Compute R, the covariance matrix associated with measurement error
-var_Rr=5^2;
-var_Ra=2^2;
-%var_Rr=.001^2;
-%var_Ra=.001^2;
+%var_Rr=5^2;
+%var_Ra=2^2;
+var_Rr=.001^2;
+var_Ra=.001^2;
 R=diag([var_Rr,var_Ra]);
 
 %Initialize state transition matrix
 F=[1 0 0 0 dt 0;0 1 0 0 0 dt;0 0 0 0 1 0;0 0 0 0 0 1;0 0 0 0 1 0;0 0 0 0 0 1];
 
 %Initialize error covariance matrix
-var_Pr=1^2;
-var_Ps=.2^2;
-P_minus=diag([var_Pr,var_Pr,var_Ps,var_Ps,var_Ps,var_Ps]);
+var_P=10^2;
+P_minus=diag([var_P,var_P,var_P,var_P,var_P,var_P]);
 P_plus=P_minus;
 
 %Initialize measurement vector
@@ -105,10 +104,10 @@ for ii=1:steps
         f_k_plus(4,1)=stw*sind(hdg);
         f_k_plus(5,1)=0;
         f_k_plus(6,1)=0;
-        P_plus(3,3)=.5^2;
-        P_plus(4,4)=.5^2;
-        P_plus(5,5)=.5^2;
-        P_plus(6,6)=.5^2;
+        P_plus(3,3)=.2^2;
+        P_plus(4,4)=.2^2;
+        P_plus(5,5)=.2^2;
+        P_plus(6,6)=.2^2;
         %P_plus=diag([1^2,1^2,1^2,1^2,1^2,1^2]);
         %P_plus=P_plus.*10;
     end
