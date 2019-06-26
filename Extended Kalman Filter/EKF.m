@@ -15,16 +15,17 @@ x0_pos=0;
 y0_pos=0;
 stw=.50;
 hdg=30;
-set=.2;
+set=.3;
 drift=30;
-x0_vel=stw*cosd(hdg)+set*cosd(drift);
-y0_vel=stw*sind(hdg)+set*sind(drift);
+x0_vel=stw*cosd(hdg);%+set*cosd(drift);
+y0_vel=stw*sind(hdg);%+set*sind(drift);
 
 %Initialize estimated state vector
-x_k_minus=[x0_pos;y0_pos;x0_vel;y0_vel;set*cosd(drift);set*sind(drift)];
-
+%x_k_minus=[x0_pos;y0_pos;x0_vel;y0_vel;set*cosd(drift);set*sind(drift)];
+x_k_minus=[x0_pos;y0_pos;x0_vel;y0_vel;0;0];
 %Compute Q, the covariance matrix for noise associated with the state vector
 var_Q=.02^2;
+%var_Q=.001^2;
 G=[.5*(dt^2); .5*(dt^2);dt; dt;dt;dt];
 Q=G*var_Q*G';
 
@@ -41,6 +42,8 @@ C=U*S;
 %Compute R, the covariance matrix associated with measurement error
 var_Rr=7^2;
 var_Ra=2^2;
+%var_Rr=.001^2;
+%var_Ra=.001^2;
 R=diag([var_Rr,var_Ra]);
 
 %Initialize state transition matrix
@@ -67,12 +70,36 @@ for ii=1:steps
     if ii<=3600
         stw=.5;
         hdg=30;
+    elseif ii<=6000
+            stw=.5;
+            hdg=90;
+    elseif ii<=6600
+            stw=.5;
+            hdg=270;
     elseif ii<=7200
             stw=.5;
             hdg=90;
     else
         stw=.5;
-        hdg=210;        
+        hdg=270;
+    end
+    
+    %Specify currents for simulation
+    if ii<=5400
+        set=.3;
+        drift=30;
+    else
+        set=.3;
+        drift=60;
+    end
+    
+    if ii==5401
+        f_k_plus(3,1)=stw*cosd(hdg);
+        f_k_plus(4,1)=stw*sind(hdg);
+        f_k_plus(5,1)=0;
+        f_k_plus(6,1)=0;
+        P_plus=diag([1^2,1^2,1^2,1^2,1^2,1^2]);
+        %P_plus=P_plus.*10;
     end
     
     %Calculate noisy estimate vector for next step
@@ -145,7 +172,7 @@ for ii=1:steps
     
     v_k=randn(2,1);
     [V_R,D_R]=eig(R);
-    [d,ind] = sort(diag(D_R),'descend');
+    [~,ind] = sort(diag(D_R),'descend');
     D_Rs = D_R(ind,ind);
     V_Rs = V_R(:,ind);
         v_k=V_Rs*D_Rs*v_k;
@@ -189,6 +216,15 @@ for ii=1:steps
     h=[hypot(x_k_minus(1,1),x_k_minus(2,1));h_ang];
     x_k_plus=x_k_minus+K*(z_k-h);
     
+    g_x=hypot((x_k_minus(3,1)-x_k_minus(5,1)),(x_k_minus(4,1)-x_k_minus(6,1)));
+    dg_dx=(x_k_minus(3,1)-x_k_minus(5,1))/g_x;
+    dg_dy=(x_k_minus(4,1)-x_k_minus(6,1))/g_x;
+
+    D=[0 0 dg_dx dg_dy -1*dg_dx -1*dg_dy];
+    d=stw-g_x+(D*x_k_minus);
+
+    
+    x_k_plus=x_k_plus-D'/(D*D')*(D*x_k_plus-d);
     %Calculate innovation
     nu=z_k-h;
     
@@ -237,16 +273,14 @@ for ii=1:steps
     data(21,ii)=s(2,1);
     data(22,ii)=nu(1,1);
     data(23,ii)=nu(2,1);
-    
-    
-    
 end
-avg(1,1)=mean(data(9,:));
-avg(2,1)=mean(data(10,:));
-avg(3,1)=atan2d(mean(data(10,:)),mean(data(9,:)));
-avg(4,1)=mean(data(11,:));
-avg(5,1)=mean(data(12,:));
-avg(6,1)=atan2d(mean(data(12,:)),mean(data(11,:)));
+
+avg(1,1)=mean(data(11,1:5400));
+avg(2,1)=mean(data(12,1:5400));
+avg(3,1)=atan2d(mean(data(12,1:5400)),mean(data(11,1:5400)));
+avg(4,1)=mean(data(11,10600:10800));
+avg(5,1)=mean(data(12,10600:10800));
+avg(6,1)=atan2d(mean(data(12,10600:10800)),mean(data(11,10600:10800)));
 
 figure
 plot(1:steps,data(17,1:steps))
