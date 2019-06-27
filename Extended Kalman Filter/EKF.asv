@@ -41,7 +41,7 @@ C=U_P*S_P;
 
 %Compute R, the covariance matrix associated with measurement error
 var_Rr=5^2;
-var_Ra=1^2;
+var_Ra=2^2;
 %var_Rr=.001^2;
 %var_Ra=.001^2;
 R=diag([var_Rr,var_Ra]);
@@ -244,7 +244,7 @@ for ii=1:steps
     %dg_dx=-1*x_k_minus(2,1)/(x_k_minus(1,1)^2);
     %dg_dy=1/x_k_minus(1,1);
     %D=[dg_dx dg_dy 0 0 0 0];
-    %d=tand(z_k(2,1))-g_x+(D*x_k_minus);
+    %d=tand(azi)-g_x+(D*x_k_minus);
     %K=K-D'/(D*D')*(D*x_k_minus-d)/(r_k'/S*r_k)*(r_k'/S);
     
     
@@ -282,12 +282,12 @@ for ii=1:steps
     %x_k_plus=x_k_plus-D'/(D*D')*(D*x_k_plus-d);
     
     %Estimate projection with non-linear constraint(azi)
-    %g_x=x_k_minus(2,1)/x_k_minus(1,1);
-    %dg_dx=-1*x_k_minus(2,1)/(x_k_minus(1,1)^2);
-    %dg_dy=1/x_k_minus(1,1);
-    %D=[dg_dx dg_dy 0 0 0 0];
-    %d=tand(z_k(2,1))-g_x+(D*x_k_minus);
-    %x_k_plus=x_k_plus-D'/(D*D')*(D*x_k_plus-d);
+    g_x=x_k_minus(2,1)/x_k_minus(1,1);
+    dg_dx=-1*x_k_minus(2,1)/(x_k_minus(1,1)^2);
+    dg_dy=1/x_k_minus(1,1);
+    D=[dg_dx dg_dy 0 0 0 0];
+    d=tand(azi)-g_x+(D*x_k_minus);
+    
    
     %Simulate affect of GPS reset
     %Did not help stabilize the norm of P
