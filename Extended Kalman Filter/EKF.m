@@ -110,7 +110,7 @@ for ii=1:steps
         %P_plus(5,5)=.2^2;
         %P_plus(6,6)=.2^2;
         
-        P_plus=diag([.3^2,.3^2,.3^2,.3^2,.3^2,.3^2]);
+        P_plus=diag([P_plus(1,1),P_plus(2,2),.2^2,.2^2,.2^2,.2^2]);
         %P_plus=P_plus.*10;
     end
     x_vel=stw*cosd(hdg)+set*cosd(drift);
@@ -247,17 +247,36 @@ for ii=1:steps
     %d=tand(z_k(2,1))-g_x+(D*x_k_minus);
     %K=K-D'/(D*D')*(D*x_k_minus-d)/(r_k'/S*r_k)*(r_k'/S);
     
+    %Gain projection with linear constraint (cog)
+    if ii>2
+        dx=data(7,ii-1)-data(7,ii-2);
+        dy=data(8,ii-1)-data(8,ii-2);
+        cog=atan2d(dy,dx);
+        D=[0 0 -1*tand(cog) 1 0 0];
+        d=0;
+        K=K-D'/(D*D')*(D*x_k_minus-d)/(r_k'/S*r_k)*(r_k'/S);
+    end
     
     %Update state vector
     x_k_plus=x_k_minus+K*r_k;
     
     %Velocity check
-    if ii>1
-        delta_x=x_k_plus(1,1)-data(7,ii-1);
-        delta_y=x_k_plus(2,1)-data(8,ii-1);
-        velocity=hypot(delta_x,delta_y)/dt;
-        data(24,ii)=velocity;
-    end
+    %if ii>1
+    %    delta_x=x_k_plus(1,1)-data(7,ii-1);
+    %    delta_y=x_k_plus(2,1)-data(8,ii-1);
+    %    velocity=hypot(delta_x,delta_y)/dt;
+    %    data(24,ii)=velocity;
+    %    if delta_x>20
+    %        x_k_plus(1,1)=x_k_plus(1,1)-delta_x+20;
+    %    elseif delta_x<-20
+    %        x_k_plus(1,1)=x_k_plus(1,1)-delta_x-20;
+    %    end
+    %    if delta_y>20
+    %        x_k_plus(2,1)=x_k_plus(2,1)-delta_y+20;
+    %    elseif delta_y<-20
+    %        x_k_plus(2,1)=x_k_plus(2,1)-delta_y-20;
+    %    end
+    %end
     
     %Estimate projection with non-linear constraint (stw)
     %g_x=hypot((x_k_minus(3,1)-x_k_minus(5,1)),(x_k_minus(4,1)-x_k_minus(6,1)));
@@ -288,6 +307,16 @@ for ii=1:steps
     %D=[dg_dx dg_dy 0 0 0 0];
     %d=tand(z_k(2,1))-g_x+(D*x_k_minus);
     %x_k_plus=x_k_plus-D'/(D*D')*(D*x_k_plus-d);
+    
+    %Estimate projection with linear constraint (cog)
+    %if ii>2
+    %    dx=data(7,ii-1)-data(7,ii-2);
+    %    dy=data(8,ii-1)-data(8,ii-2);
+    %    cog=atan2d(dy,dx);
+    %    D=[0 0 -1*tand(cog) 1 0 0];
+    %    d=0;
+    %    x_k_plus=x_k_plus-D'/(D*D')*(D*x_k_plus-d);
+    %end
    
     %Simulate affect of GPS reset
     %Did not help stabilize the norm of P
