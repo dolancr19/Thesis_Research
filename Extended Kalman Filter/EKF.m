@@ -9,6 +9,7 @@ dt=1;
 %Initialize data matrix
 data=zeros(24,steps);
 avg=zeros(6,1);
+rts_out=zeros(6,steps-5);
 
 %Define boundary conditions
 x0_pos=0;
@@ -133,6 +134,18 @@ for ii=1:steps
     
     x_k_minus=F*x_k_plus+u_k+w_k;
     
+    if ii<=6
+        field="xm"+ii;
+        rts.(field)=x_k_minus;
+    else
+        rts.xm1=rts.xm2;
+        rts.xm2=rts.xm3;
+        rts.xm3=rts.xm4;
+        rts.xm4=rts.xm5;
+        rts.xm5=rts.xm6;
+        rts.xm6=x_k_minus;
+    end
+    
     %System projection with non-linear constraint (stw)
     %g_x=hypot((x_k_minus(3,1)-x_k_minus(5,1)),(x_k_minus(4,1)-x_k_minus(6,1)));
     %dg_dx=(x_k_minus(3,1)-x_k_minus(5,1))/g_x;
@@ -160,7 +173,18 @@ for ii=1:steps
     
     %Calculate error covariance matrix for next step
     P_minus=F*P_plus*F'+Q;
-    
+    if ii<=6
+        field="pm"+ii;
+        rts.(field)=P_minus;
+    else
+        rts.pm1=rts.pm2;
+        rts.pm2=rts.pm3;
+        rts.pm3=rts.pm4;
+        rts.pm4=rts.pm5;
+        rts.pm5=rts.pm6;
+        rts.pm6=P_minus;
+    end
+        
     
     data(1,ii)=x_k_minus(1,1);
     data(2,ii)=x_k_minus(2,1);
@@ -260,6 +284,18 @@ for ii=1:steps
     %Update state vector
     x_k_plus=x_k_minus+K*r_k;
     
+    if ii<=6
+        field="xp"+ii;
+        rts.(field)=x_k_plus;
+    else
+        rts.xp1=rts.xp2;
+        rts.xp2=rts.xp3;
+        rts.xp3=rts.xp4;
+        rts.xp4=rts.xp5;
+        rts.xp5=rts.xp6;
+        rts.xp6=x_k_plus;
+    end
+    
     %Velocity check
     %if ii>1
     %    delta_x=x_k_plus(1,1)-data(7,ii-1);
@@ -335,6 +371,18 @@ for ii=1:steps
     %Joseph stabilized equation
     P_plus=(eye(6)-K*H)*P_minus*(eye(6)-K*H)'+K*R*K';
     
+    if ii<=6
+        field="pp"+ii;
+        rts.(field)=P_plus;
+    else
+        rts.pp1=rts.pp2;
+        rts.pp2=rts.pp3;
+        rts.pp3=rts.pp4;
+        rts.pp4=rts.pp5;
+        rts.pp5=rts.pp6;
+        rts.pp6=P_plus;
+    end
+    
     %Periodically reset velocities to the mean
     %Seemed to help stabilize error when one course was used.  Was not
     %useful with multiple courses
@@ -344,6 +392,23 @@ for ii=1:steps
     %    x_k_plus(4,1)=mean(data(10,:));
     %    x_k_plus(5,1)=mean(data(11,:));
     %    x_k_plus(6,1)=mean(data(12,:));
+    %end
+    
+    %RTS smoother
+    %if ii>=6
+    %    x_nn=x_k_plus;
+    %    P_nn=P_plus;
+    %    for nn=5:-1:1
+    %        pp_ind="pp"+nn;
+    %        pm_ind="pm"+(nn+1);
+    %        xm_ind="xm"+(nn+1);
+    %        xp_ind="xp"+nn;
+    %        
+    %        K_nn=rts.(pp_ind)*F'/rts.(pm_ind);
+    %        P_nn=rts.(pp_ind)-K_nn*(rts.(pm_ind)-P_nn)*K_nn';
+    %        x_nn=rts.(xp_ind)+K_nn*(x_nn-rts.(xm_ind));
+    %    end
+    %    rts_out(:,ii-5)=x_nn;
     %end
     
     data(7,ii)=x_k_plus(1,1);
@@ -391,3 +456,10 @@ title('Acutal Position vs Filter Output Position')
 xlabel('x position (m)')
 ylabel('y position (m)')
 legend('Filter Output','Actual Position','location','southeast')
+
+figure
+plot(rts_out(1,:),rts_out(2,:),data(15,6:steps),data(16,6:steps))
+title('Acutal Position vs RTS Output Position')
+xlabel('x position (m)')
+ylabel('y position (m)')
+legend('RTS Output','Actual Position','location','southeast')
