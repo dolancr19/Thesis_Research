@@ -25,7 +25,7 @@ y0_vel=stw*sind(hdg);%+set*sind(drift);
 %x_k_minus=[x0_pos;y0_pos;x0_vel;y0_vel;set*cosd(drift);set*sind(drift)];
 x_k_minus=[x0_pos;y0_pos;x0_vel;y0_vel;0;0];
 %Compute Q, the covariance matrix for noise associated with the state vector
-var_Q=.3^2;
+var_Q=.015^2;
 %var_Q=.001^2;
 G=[.5*(dt^2); .5*(dt^2);dt; dt;dt;dt];
 Q=G*var_Q*G';
@@ -134,17 +134,17 @@ for ii=1:steps
     
     x_k_minus=F*x_k_plus+u_k+w_k;
     
-    if ii<=6
-        field="xm"+ii;
-        rts.(field)=x_k_minus;
-    else
-        rts.xm1=rts.xm2;
-        rts.xm2=rts.xm3;
-        rts.xm3=rts.xm4;
-        rts.xm4=rts.xm5;
-        rts.xm5=rts.xm6;
-        rts.xm6=x_k_minus;
-    end
+    %if ii<=6
+    %    field="xm"+ii;
+    %    rts.(field)=x_k_minus;
+    %else
+    %    rts.xm1=rts.xm2;
+    %    rts.xm2=rts.xm3;
+    %    rts.xm3=rts.xm4;
+    %    rts.xm4=rts.xm5;
+    %    rts.xm5=rts.xm6;
+    %    rts.xm6=x_k_minus;
+    %end
     
     %System projection with non-linear constraint (stw)
     %g_x=hypot((x_k_minus(3,1)-x_k_minus(5,1)),(x_k_minus(4,1)-x_k_minus(6,1)));
@@ -158,6 +158,7 @@ for ii=1:steps
     %Q=N*Q*N;
     
     %System projection with linear constraint (cog)
+    %Q=diag([var_Q,var_Q,var_Q,var_Q,var_Q,var_Q]);
     if ii>2
         dx=data(7,ii-1)-data(7,ii-2);
         dy=data(8,ii-1)-data(8,ii-2);
@@ -173,17 +174,17 @@ for ii=1:steps
     
     %Calculate error covariance matrix for next step
     P_minus=F*P_plus*F'+Q;
-    if ii<=6
-        field="pm"+ii;
-        rts.(field)=P_minus;
-    else
-        rts.pm1=rts.pm2;
-        rts.pm2=rts.pm3;
-        rts.pm3=rts.pm4;
-        rts.pm4=rts.pm5;
-        rts.pm5=rts.pm6;
-        rts.pm6=P_minus;
-    end
+    %if ii<=6
+    %    field="pm"+ii;
+    %    rts.(field)=P_minus;
+    %else
+    %    rts.pm1=rts.pm2;
+    %    rts.pm2=rts.pm3;
+    %    rts.pm3=rts.pm4;
+    %    rts.pm4=rts.pm5;
+    %    rts.pm5=rts.pm6;
+    %    rts.pm6=P_minus;
+    %end
         
     
     data(1,ii)=x_k_minus(1,1);
@@ -284,17 +285,17 @@ for ii=1:steps
     %Update state vector
     x_k_plus=x_k_minus+K*r_k;
     
-    if ii<=6
-        field="xp"+ii;
-        rts.(field)=x_k_plus;
-    else
-        rts.xp1=rts.xp2;
-        rts.xp2=rts.xp3;
-        rts.xp3=rts.xp4;
-        rts.xp4=rts.xp5;
-        rts.xp5=rts.xp6;
-        rts.xp6=x_k_plus;
-    end
+    %if ii<=6
+    %    field="xp"+ii;
+    %    rts.(field)=x_k_plus;
+    %else
+    %    rts.xp1=rts.xp2;
+    %    rts.xp2=rts.xp3;
+    %    rts.xp3=rts.xp4;
+    %    rts.xp4=rts.xp5;
+    %    rts.xp5=rts.xp6;
+    %    rts.xp6=x_k_plus;
+    %end
     
     %Velocity check
     %if ii>1
@@ -371,17 +372,17 @@ for ii=1:steps
     %Joseph stabilized equation
     P_plus=(eye(6)-K*H)*P_minus*(eye(6)-K*H)'+K*R*K';
     
-    if ii<=6
-        field="pp"+ii;
-        rts.(field)=P_plus;
-    else
-        rts.pp1=rts.pp2;
-        rts.pp2=rts.pp3;
-        rts.pp3=rts.pp4;
-        rts.pp4=rts.pp5;
-        rts.pp5=rts.pp6;
-        rts.pp6=P_plus;
-    end
+    %if ii<=6
+    %    field="pp"+ii;
+    %    rts.(field)=P_plus;
+    %else
+    %    rts.pp1=rts.pp2;
+    %    rts.pp2=rts.pp3;
+    %    rts.pp3=rts.pp4;
+    %    rts.pp4=rts.pp5;
+    %    rts.pp5=rts.pp6;
+    %    rts.pp6=P_plus;
+    %end
     
     %Periodically reset velocities to the mean
     %Seemed to help stabilize error when one course was used.  Was not
@@ -457,9 +458,9 @@ xlabel('x position (m)')
 ylabel('y position (m)')
 legend('Filter Output','Actual Position','location','southeast')
 
-figure
-plot(rts_out(1,:),rts_out(2,:),data(15,6:steps),data(16,6:steps))
-title('Acutal Position vs RTS Output Position')
-xlabel('x position (m)')
-ylabel('y position (m)')
-legend('RTS Output','Actual Position','location','southeast')
+%figure
+%plot(rts_out(1,:),rts_out(2,:),data(15,6:steps),data(16,6:steps))
+%title('Acutal Position vs RTS Output Position')
+%xlabel('x position (m)')
+%ylabel('y position (m)')
+%legend('RTS Output','Actual Position','location','southeast')
