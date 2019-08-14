@@ -1,0 +1,51 @@
+% Estimate Zww.  This is from clio013, a mid-depth ascent between samples and the descent.
+% a more involved analysis is in nui015/eng/ascent_descent.m  This is derived from that.
+TWINA =  1.0e+09 *[   1.540358882387986   1.540358969129355];
+TWIND =  1.0e+09 *[   1.540265743288343   1.540266444511677];
+
+% NUI fit underpredicts current during descent.
+% inclined to believe this over Sentry fit because wake fraction should reduce thruster effectiveness on vehicle
+% over open water flume results.  That's for AV.  Prediction is pretty spot on for PV/SV in Q1.
+pKT = [-0.1075   -0.2487    0.3742];  % from flume data for NUI torqeedo.
+pKQtau = [0.0320   -0.0337    0.0611];
+
+% zero-order reverse-bollard fits.  Only NUI thruster data available here.
+pKTr = [-0.1820];
+pKQtaur = [-0.0509];
+
+elm.PV = elm0; % assignment is arbitrary.  I don't know which is which.
+elm.SV = elm1; 
+
+fn={'pv','sv'};
+for n=1:length(fn)
+
+  s = elm.(upper(fn{n}));
+  s.w = interp1(css.t,css.vel(:,3),s.t);
+  s.rps = -s.en_vel*CNTS2RPM/60;  % change sign so that positive is pushing down. 
+  s.J = s.w./s.rps/DIAM;
+  s.irev = s.rps < 0;
+  s.KT = polyval(pKT,s.J);
+  s.KT(s.irev) = polyval(pKTr,s.J(s.irev));
+  s.T = s.KT.*RHO.*s.rps.^2.*DIAM^4;
+  s.KQtau = polyval(pKQtau,s.J);
+  s.KQtau(s.irev) = polyval(pKQtaur,s.J(s.irev));
+  s.Im = -s.KQtau.*RHO.*s.rps.^2.*DIAM^5;  % use this to cross-check against measured. 
+  s.Q = s.Im*Ktau;
+  s.Pprop = s.T.*s.w;
+  s.Pshaft = abs(s.Q.*s.rps*2*pi);
+  s.Vemf = s.rps*2*pi.*Kb;  % does not include voltage from winding resistance.
+  s.Pm = abs(s.Vemf.*s.Im) + s.Im.^2*Rm;
+  s.Psupply = s.Pm;
+  
+  % all of the above is predicted.  Now do measured.
+  s.Im_obs = s.current;
+  s.Q_obs = s.Im_obs*Ktau;
+  s.Pshaft_obs = abs(s.Q_obs.*s.rps*2*pi);
+  s.Pm_obs = abs(s.Vemf.*s.Im_obs) + s.Im_obs.^2*Rm;
+  s.Psupply_obs = s.Pm_obs;
+  
+  eval(sprintf('%s = s;',fn{n}));
+  eval(sprintf('%sd = sextt(%s,TWIND);',fn{n},fn{n}));
+  eval(sprintf('%sa = sextt(%s,TWINA);',fn{n},fn{n}));
+end
+

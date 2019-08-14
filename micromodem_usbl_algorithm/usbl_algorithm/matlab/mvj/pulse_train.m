@@ -1,0 +1,190 @@
+% Revision History
+% 2019-03-01    mvj    Created.
+% 2019-04-03    mvj    Playing with 
+
+
+clear
+
+% can create a beat frequency in per-channel phase by making FREQ_HZ other than 10e3.
+FREQ_HZ = 10000;
+C_MPS = 1500;
+LAMBDA = C_MPS/FREQ_HZ;
+
+BURST_RATE_HZ = 4;
+
+PULSE_LENGTH_S = 10*1/FREQ_HZ;  % 10 cycles
+
+SAMPLE_RATE_HZ = 100e3; %.22222e3; 
+
+SAMPLE_TIME_S = 10;  % 40 pings in 10 s.
+
+PHASE1 = 0;
+PHASE2 = 40*D2R;
+PHASED = 30*D2R;
+
+DISTORTION1 = 1.00000;  % distortion in frequency of rx'd signal on channel 1
+DISTORTION2 = 0.99979  % distortion in frequency of rx'd signal on channel 2
+DISTORTION3 = 0.99997;
+
+% 2019/03/07 19:57:00
+% able to get interleaved sinusoids in the dphi signal by adding small amplitude sinusoids of a very slightly off
+% frequency, < 1 Hz out of 10 kHz!  The shape of the dphi signal though is very sensitive to the particular choice
+% of frequencies.  But if the two frequencies received are even slightly off, 0.00001 Hz, the dphi is crazy.  If most 
+% of the signal is the same freq, then a little of a slightly off freq mixed in (1%) can make overlapping sinusoids
+% appear in the dphi. 
+
+SNR = inf;
+
+% make a sinusoid for the duration of the sampling period.
+ts = [0:1/SAMPLE_RATE_HZ:SAMPLE_TIME_S]';
+ys = exp(-j*(pi/2+PHASE1))*exp(j*FREQ_HZ*DISTORTION1*2*pi*ts);
+
+% make the pulse train by nulling out the inter-pulse periods.
+for n=1:SAMPLE_TIME_S*BURST_RATE_HZ
+  
+  ii = ts > (n-1)*1/BURST_RATE_HZ +PULSE_LENGTH_S & ...
+      ts <= n*1/BURST_RATE_HZ;
+
+  ys(ii) = 0;
+  
+end
+ys = awgn(ys,SNR);
+% so now we have a complex input signal where we've made the choice
+% that the real part represents the actual input signal.  This is 
+% a choice, and there are other options.  There is no one-to-one
+% mapping because a complex number is 2 numbers and a real one is just
+% one number.  This choice happens to be a convenient one for 
+% manipulation by filtering, etc.
+
+
+% idea is that freq are such that each pulse results in a slightly different
+% pattern of discrete samples.
+
+figure(1); clf reset;
+%tts = 0:1/SAMPLE_RATE_HZ/10:SAMPLE_TIME_S;
+%yys = sin(FREQ_HZ*2*pi*tts);
+%plot(tts,yys,'k',ts,real(ys),'x');
+plot(ts,ys);
+
+
+% now construct the MFD and filter the pulse train.
+% The signal we're looking for is just a sinusoid pulse.
+% copying JWP's code here.
+tp = 0:1/SAMPLE_RATE_HZ:PULSE_LENGTH_S;
+yp = exp(-j*pi/2)*exp(j*FREQ_HZ*2*pi*tp); %sin(FREQ_HZ*2*pi*tp);
+h_mfd = conj(yp); % following JWP here.
+
+
+dthresh=10;
+pown = 20;
+[ire] = mfd1(ys,h_mfd,dthresh,pown);
+
+figure(2); clf reset;
+subplot(211)
+plot(ts,real(ire),ts,abs(ire));
+subplot(212)
+plot(ts,angle(ire)*R2D);
+ylabel('Phase estimate (deg)');
+
+% now pick off the peaks and plot the estimated phase at the peak of each.
+for n=1:SAMPLE_TIME_S*BURST_RATE_HZ
+  
+  ii = find(ts > (n-1)*1/BURST_RATE_HZ & ...
+      ts <= n*1/BURST_RATE_HZ);
+
+  irex = ire(ii);
+  [mag(n),im] = max(abs(irex));
+  
+  ph(n) = angle(irex(im));
+
+  idetect(n) = ii(im);
+  
+end
+
+subplot(211)
+hold on; plot(ts(idetect),mag,'ko');
+subplot(212)
+hold on; plot(ts(idetect),ph*R2D,'ko');
+
+figure(3); clf reset;
+subplot(311);
+plot(mag,'ko');
+ylabel('Mag');
+subplot(312);
+plot(ph*R2D,'ko');
+ylabel('Phase (deg)');
+
+% so far this very clearly shows the phase estimate for a single channel at the maximum output of the MFD clearly
+% varies periodically depending on how the samples happen to line up with the underlying waveform.   That is not
+% surprising because the peak is still a sampled quantity.  But the variation is not sinusoidal.  seems to be more 
+% ramp-like.
+% Question now is whether the shift in the phase estimate is the same if we have multiple channels with slightly
+% phase-shifted underlying signals, or if it is the same across all channels.
+
+% Try generating another signal, slightly shifted, but sampled at the same instants as the first.
+%ts2 = ts+11*1/SAMPLE_RATE_HZ;
+ts2 = ts;
+%ys2 = exp(-j*(pi/2+PHASE2))*exp(j*FREQ_HZ*DISTORTION1*2*pi*ts2) + ...
+%    0.01*exp(-j*(pi/2+PHASED))*exp(j*FREQ_HZ*DISTORTION2*2*pi*ts2) + ...
+%    0.01*exp(-j*(pi/2))*exp(j*FREQ_HZ*DISTORTION3*2*pi*ts); % + ...
+%    0.01*exp(-j*(pi/2+PHASE2+pi/5))*exp(j*FREQ_HZ*1.0003*2*pi*ts);;;;
+ys2 = exp(-j*(pi/2+PHASE2))*exp(j*FREQ_HZ*DISTORTION1*2*pi*ts2) + ...
+    0.01*exp(-j*(pi/2+PHASE2))*exp(j*FREQ_HZ*DISTORTION2*2*pi*ts2); % + ...
+%    0.01*exp(-j*(pi/2-PHASE2))*exp(j*FREQ_HZ*DISTORTION3*2*pi*ts2);
+DT = 0; %0.0000333;  % making this non-zero, but very small is the only way I've gotten some variation in the phase diff,
+                 % but it is tiny and quantized, not periodic.
+for n=1:SAMPLE_TIME_S*BURST_RATE_HZ
+  
+  ii = ts+DT > (n-1)*1/BURST_RATE_HZ +PULSE_LENGTH_S & ...
+      ts+DT <= n*1/BURST_RATE_HZ;
+
+  ys2(ii) = 0;
+  
+end
+ys2=awgn(ys2,SNR);
+
+figure(1); 
+hold on; plot(ts,ys2);
+gridall;
+
+[ire2] = mfd1(ys2,h_mfd,dthresh,pown);
+% now pick off the peaks and plot the estimated phase at the peak of each.
+for n=1:SAMPLE_TIME_S*BURST_RATE_HZ
+  
+  % use detection index from ire 1. This is because we want the phase difference at the same instant.  The peak
+  % MFD output on channel 1 is a bit arbitrary but that is what the MM does.
+   
+  mag2(n) = abs(ire2(idetect(n)));
+  ph2(n) = angle(ire2(idetect(n)));
+
+end
+
+figure(2);
+subplot(211)
+hold on; plot(ts,real(ire2),ts,abs(ire2));
+hold on; plot(ts(idetect),mag2,'rs');
+subplot(212)
+hold on; plot(ts,angle(ire2)*R2D);
+hold on; plot(ts(idetect),ph2*R2D,'rs');
+gridall;
+
+figure(3);
+subplot(311);
+hold on; plot(mag2,'rs');
+subplot(312);
+hold on; plot(ph2*R2D,'rs');
+subplot(313)
+plot((ph-ph2)*R2D,'^');
+ylabel('dphi (deg)');
+gridall;
+
+
+
+% So far this is showing no inter-channel problems.  The inter-channel phase is bang-on.
+% The single-channel phase estimate appears to walk linearly and then step, not vary sinusoidally.
+% Conceivably a beat frequency would result if the MFD assumed a sinusoidal frequency a little different from
+% the actual.  Seems incredibly robust to that.  
+
+figure(4); clf reset;
+hold on; plot(ts,(angle(ire)-angle(ire2))*R2D);
+hold on; plot(ts(idetect),(ph-ph2)*R2D);

@@ -97,23 +97,23 @@ for ii=1:steps
         set=.3;
         drift=30;
     else
-        set=.3;
-        drift=60;
+        set=.5;
+        drift=30;
     end
     
-    if ii==2001
-        f_k_plus(3,1)=stw*cosd(hdg);
-        f_k_plus(4,1)=stw*sind(hdg);
-        f_k_plus(5,1)=0;
-        f_k_plus(6,1)=0;
+    %if ii==2001
+    %    f_k_plus(3,1)=stw*cosd(hdg);
+    %    f_k_plus(4,1)=stw*sind(hdg);
+    %    f_k_plus(5,1)=0;
+    %    f_k_plus(6,1)=0;
         %P_plus(3,3)=.2^2;
         %P_plus(4,4)=.2^2;
         %P_plus(5,5)=.2^2;
         %P_plus(6,6)=.2^2;
         
-        P_plus=diag([P_plus(1,1),P_plus(2,2),.2^2,.2^2,.2^2,.2^2]);
+    %    P_plus=diag([P_plus(1,1),P_plus(2,2),.2^2,.2^2,.2^2,.2^2]);
         %P_plus=P_plus.*10;
-    end
+    %end
     x_vel=stw*cosd(hdg)+set*cosd(drift);
     y_vel=stw*sind(hdg)+set*sind(drift);
     %sog=hypot(x_vel,y_vel);
