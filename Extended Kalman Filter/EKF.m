@@ -1,14 +1,14 @@
 clear variables;
 
 %Define # of filter steps desired
-steps=3300;
+steps=40000;
 
 %Define time step size
-dt=1;
+dt=.1;
 
 %Initialize data matrix
 data=zeros(24,steps);
-avg=zeros(6,1);
+avg=zeros(4,1);
 rts_out=zeros(6,steps-5);
 
 %Define boundary conditions
@@ -17,7 +17,7 @@ y0_pos=0;
 stw=.50;
 hdg=30;
 set=.3;
-drift=30;
+drift=60;
 x0_vel=stw*cosd(hdg);%+set*cosd(drift);
 y0_vel=stw*sind(hdg);%+set*sind(drift);
 
@@ -25,8 +25,8 @@ y0_vel=stw*sind(hdg);%+set*sind(drift);
 %x_k_minus=[x0_pos;y0_pos;x0_vel;y0_vel;set*cosd(drift);set*sind(drift)];
 x_k_minus=[x0_pos;y0_pos;x0_vel;y0_vel;0;0];
 %Compute Q, the covariance matrix for noise associated with the state vector
-var_Q=.015^2;
-%var_Q=.001^2;
+var_Q=.3^2;
+%var_Q=.0001^2;
 G=[.5*(dt^2); .5*(dt^2);dt; dt;dt;dt];
 Q=G*var_Q*G';
 
@@ -41,18 +41,15 @@ C=U_P*S_P;
 %Q=diag([var_Qp,var_Qp,var_Qs,var_Qs,var_Qs,var_Qs]);
 
 %Compute R, the covariance matrix associated with measurement error
-var_Rr=5^2;
+var_Rr=10^2;
 var_Ra=1^2;
-%var_Rr=.001^2;
-%var_Ra=.001^2;
+%var_Rr=.0001^2;
+%var_Ra=.0001^2;
 R=diag([var_Rr,var_Ra]);
 
-%Initialize state transition matrix
-F=[1 0 0 0 dt 0;0 1 0 0 0 dt;0 0 0 0 1 0;0 0 0 0 0 1;0 0 0 0 1 0;0 0 0 0 0 1];
-
 %Initialize error covariance matrix
-var_Pr=1^2;
-var_Ps=.2^2;
+var_Pr=10^2;
+var_Ps=1^2;
 P_minus=diag([var_Pr,var_Pr,var_Ps,var_Ps,var_Ps,var_Ps]);
 P_plus=P_minus;
 
@@ -66,54 +63,61 @@ z_k=[0;0];
 %Initialize state vector
 x_k_plus=x_k_minus;
 
+F=[1 0 0 0 dt 0;0 1 0 0 0 dt;0 0 0 0 1 0;0 0 0 0 0 1;0 0 0 0 1 0;0 0 0 0 0 1];
 %jj=1;
 for ii=1:steps
     %Define courses for simulation
-    if ii<=600
+    if ii<=4000
         stw=.5;
         hdg=30;
-    elseif ii<=900
+    elseif ii<=8000
             stw=.5;
             hdg=120;
-    elseif ii<=1500
+    elseif ii<=12000
             stw=.5;
             hdg=210;
-    elseif ii<=1800
+    elseif ii<=16000
             stw=.5;
             hdg=120;
-    elseif ii<=2400
+    elseif ii<=24000
         stw=.5;
         hdg=30;
-    elseif ii<=2700
+    elseif ii<=28000
+        stw=.5;
+        hdg=120;
+    elseif ii<=32000
+        stw=.5;
+        hdg=210;
+    elseif ii<=36000
         stw=.5;
         hdg=120;
     else
         stw=.5;
-        hdg=210;
+        hdg=30;
     end
     
     %Specify currents for simulation
-    if ii<=2000
+    if ii<=20000
         set=.3;
-        drift=30;
+        drift=60;
     else
-        set=.5;
-        drift=30;
+        set=.3;
+        drift=110;
     end
     
-    %if ii==2001
-    %    f_k_plus(3,1)=stw*cosd(hdg);
-    %    f_k_plus(4,1)=stw*sind(hdg);
-    %    f_k_plus(5,1)=0;
-    %    f_k_plus(6,1)=0;
+    if ii==20001
+        %x_k_plus(3,1)=stw*cosd(hdg);
+        %x_k_plus(4,1)=stw*sind(hdg);
+        x_k_plus(5,1)=.001;
+        x_k_plus(6,1)=.001;
         %P_plus(3,3)=.2^2;
         %P_plus(4,4)=.2^2;
         %P_plus(5,5)=.2^2;
         %P_plus(6,6)=.2^2;
         
-    %    P_plus=diag([P_plus(1,1),P_plus(2,2),.2^2,.2^2,.2^2,.2^2]);
-        %P_plus=P_plus.*10;
-    %end
+        %P_plus=diag([var_Pr,var_Pr,var_Ps,var_Ps,var_Ps,var_Ps]);
+        P_plus=P_plus.*10;
+    end
     x_vel=stw*cosd(hdg)+set*cosd(drift);
     y_vel=stw*sind(hdg)+set*sind(drift);
     %sog=hypot(x_vel,y_vel);
@@ -125,6 +129,7 @@ for ii=1:steps
     w_k=randn(6,1);
     w_k=C*w_k;
     
+    
     %With different sigma values for each measurement
     %[V_Q,D_Q]=eig(Q);
     %[dq,indq] = sort(diag(D_Q),'descend');
@@ -132,7 +137,21 @@ for ii=1:steps
     %V_Qs = V_Q(:,indq);
     %w_k=V_Qs*D_Qs*w_k;
     
+    %sin_A=0.000001;
+    %sin_B=(2*pi)/(2*3600);
+    %t=ii*dt;
+    
+    %new_x=sin_A*sin(sin_B*t)+x_k_plus(5,1);
+    %new_y=sin_A*sin(sin_B*t)+x_k_plus(6,1);
+    
+        
+    %f=[x_k_plus(1,1)+(x_k_plus(5,1)*dt); x_k_plus(2,1)+(x_k_plus(6,1)*dt); new_x; new_y; new_x; new_y];
+    %Calculate state transition matrix
+    %df_dx=sin_A*sin_B*cos(sin_B*t);
+    %df_dy=sin_A*sin_B*cos(sin_B*t);
+    %F=[1 0 0 0 0 0;0 1 0 0 0 0;0 0 0 0 df_dx 0;0 0 0 0 0 df_dy;0 0 0 0 df_dx 0;0 0 0 0 0 df_dy];
     x_k_minus=F*x_k_plus+u_k+w_k;
+    %x_k_minus=f+u_k;%+w_k;
     
     %if ii<=6
     %    field="xm"+ii;
@@ -159,17 +178,17 @@ for ii=1:steps
     
     %System projection with linear constraint (cog)
     %Q=diag([var_Q,var_Q,var_Q,var_Q,var_Q,var_Q]);
-    if ii>2
-        dx=data(7,ii-1)-data(7,ii-2);
-        dy=data(8,ii-1)-data(8,ii-2);
-        cog=atan2d(dy,dx);
-        D=[0 0 -1*tand(cog) 1 0 0];
-        d=0;
-        [U_Q,S_Q,V_Q]=svd(D');
-        U_Q(:,1)=[];
-        N=U_Q*U_Q';
-        Q=N*Q*N;
-    end
+    %if ii>2
+    %    dx=data(7,ii-1)-data(7,ii-2);
+    %    dy=data(8,ii-1)-data(8,ii-2);
+    %    cog=atan2d(dy,dx);
+    %    D=[0 0 -1*tand(cog) 1 0 0];
+    %    d=0;
+    %    [U_Q,S_Q,V_Q]=svd(D');
+    %    U_Q(:,1)=[];
+    %    N=U_Q*U_Q';
+    %    Q=N*Q*N;
+    %end
     
     
     %Calculate error covariance matrix for next step
@@ -273,14 +292,14 @@ for ii=1:steps
     %K=K-D'/(D*D')*(D*x_k_minus-d)/(r_k'/S*r_k)*(r_k'/S);
     
     %Gain projection with linear constraint (cog)
-    if ii>2
-        dx=data(7,ii-1)-data(7,ii-2);
-        dy=data(8,ii-1)-data(8,ii-2);
-        cog=atan2d(dy,dx);
-        D=[0 0 -1*tand(cog) 1 0 0];
-        d=0;
-        K=K-D'/(D*D')*(D*x_k_minus-d)/(r_k'/S*r_k)*(r_k'/S);
-    end
+    %if ii>2
+    %    dx=data(7,ii-1)-data(7,ii-2);
+    %    dy=data(8,ii-1)-data(8,ii-2);
+    %    cog=atan2d(dy,dx);
+    %    D=[0 0 -1*tand(cog) 1 0 0];
+    %    d=0;
+    %    K=K-D'/(D*D')*(D*x_k_minus-d)/(r_k'/S*r_k)*(r_k'/S);
+    %end
     
     %Update state vector
     x_k_plus=x_k_minus+K*r_k;
@@ -431,12 +450,11 @@ for ii=1:steps
     data(23,ii)=r_k(2,1);
 end
 
-avg(1,1)=mean(data(11,1:2000));
-avg(2,1)=mean(data(12,1:2000));
-avg(3,1)=atan2d(mean(data(12,1:2000)),mean(data(11,1:2000)));
-avg(4,1)=mean(data(11,2001:steps));
-avg(5,1)=mean(data(12,2001:steps));
-avg(6,1)=atan2d(mean(data(12,2001:steps)),mean(data(11,2001:steps)));
+avg(1,1)=hypot(mean(data(11,16000:20000)),mean(data(12,16000:20000)));
+avg(2,1)=atan2d(mean(data(12,16000:20000)),mean(data(11,16000:20000)));
+avg(3,1)=hypot(mean(data(11,36000:steps)),mean(data(12,36000:steps)));
+avg(4,1)=atan2d(mean(data(12,36000:steps)),mean(data(11,36000:steps)));
+
 
 figure
 plot(1:steps,data(17,1:steps))
