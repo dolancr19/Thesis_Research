@@ -1,0 +1,286 @@
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.prf]
+---------------------------------------------------------------------
+Number of measurements                3381
+Number of checksum errors             0
+Time of first measurement             10/16/2019 15:46:30.000
+Time of last measurement              10/16/2019 17:59:33.000
+
+Hardware configuration
+---------------------------------------------------------------------
+Instrument name                       Signature1000
+Serial number                         100048
+Head frequency                        1000 kHz
+Firmware version                      163.3046_4
+Pressure sensor                       YES
+Compass                               YES
+Tilt sensor                           YES
+Temperature sensor                    YES
+Number of head beams                  5
+
+Deployment configuration
+---------------------------------------------------------------------
+Sound speed                           MEASURED
+Salinity                              34.0 ppt
+Frequency                             1000 kHz
+Number of beams                       4 + vertical (0)
+Blanking distance                     0.10 m
+Number of cells                       15
+Cell size                             1.00 m
+Power level                           0 dB
+Number of pings                       1
+Measurement interval                  10 sec
+Sampling rate                         4 Hz
+Number of samples                     40
+Coordinate system                     BEAM
+Velocity range                        3.00 m/s
+
+
+Data file format
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.v1]
+ 1   Burst counter
+ 2   Ensemble counter
+ 3   Velocity Cell 1 (Beam1|X|East)   (m/s)
+ 4   Velocity Cell 2 (Beam1|X|East)   (m/s)
+     .
+     .
+ n   Velocity Cell n (Beam1|X|East)   (m/s)
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.v2]
+ 1   Burst counter
+ 2   Ensemble counter
+ 3   Velocity Cell 1 (Beam2|Y|North)  (m/s)
+ 4   Velocity Cell 2 (Beam2|Y|North)  (m/s)
+     .
+     .
+ n   Velocity Cell n (Beam2|Y|North)  (m/s)
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.v3]
+ 1   Burst counter
+ 2   Ensemble counter
+ 3   Velocity Cell 1 (Beam3|Z|Up)     (m/s)
+ 4   Velocity Cell 2 (Beam3|Z|Up)     (m/s)
+     .
+     .
+ n   Velocity Cell n (Beam3|Z|Up)     (m/s)
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.v4]
+ 1   Burst counter
+ 2   Ensemble counter
+ 3   Velocity Cell 1 (Beam4|Z2|Up2)   (m/s)
+ 4   Velocity Cell 2 (Beam4|Z2|Up2)   (m/s)
+     .
+     .
+ n   Velocity Cell n (Beam4|Z2|Up2)   (m/s)
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.a1]
+ 1   Burst counter
+ 2   Ensemble counter
+ 3   Amplitude Cell 1 (Beam1)         (counts)
+ 4   Amplitude Cell 2 (Beam1)         (counts)
+     .
+     .
+ n   Amplitude Cell n (Beam1)         (counts)
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.a2]
+ 1   Burst counter
+ 2   Ensemble counter
+ 3   Amplitude Cell 1 (Beam2)         (counts)
+ 4   Amplitude Cell 2 (Beam2)         (counts)
+     .
+     .
+ n   Amplitude Cell n (Beam2)         (counts)
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.a3]
+ 1   Burst counter
+ 2   Ensemble counter
+ 3   Amplitude Cell 1 (Beam3)         (counts)
+ 4   Amplitude Cell 2 (Beam3)         (counts)
+     .
+     .
+ n   Amplitude Cell n (Beam3)         (counts)
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.a4]
+ 1   Burst counter
+ 2   Ensemble counter
+ 3   Amplitude Cell 1 (Beam4)         (counts)
+ 4   Amplitude Cell 2 (Beam4)         (counts)
+     .
+     .
+ n   Amplitude Cell n (Beam4)         (counts)
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.c1]
+ 1   Burst counter
+ 2   Ensemble counter
+ 3   Correlation Cell 1 (Beam1)       (%)
+ 4   Correlation Cell 2 (Beam1)       (%)
+     .
+     .
+ n   Correlation Cell n (Beam1)       (%)
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.c2]
+ 1   Burst counter
+ 2   Ensemble counter
+ 3   Correlation Cell 1 (Beam2)       (%)
+ 4   Correlation Cell 2 (Beam2)       (%)
+     .
+     .
+ n   Correlation Cell n (Beam2)       (%)
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.c3]
+ 1   Burst counter
+ 2   Ensemble counter
+ 3   Correlation Cell 1 (Beam3)       (%)
+ 4   Correlation Cell 2 (Beam3)       (%)
+     .
+     .
+ n   Correlation Cell n (Beam3)       (%)
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.c4]
+ 1   Burst counter
+ 2   Ensemble counter
+ 3   Correlation Cell 1 (Beam4)       (%)
+ 4   Correlation Cell 2 (Beam4)       (%)
+     .
+     .
+ n   Correlation Cell n (Beam4)       (%)
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.sen]
+ 1   Month                            (1-12)
+ 2   Day                              (1-31)
+ 3   Year
+ 4   Hour                             (0-23)
+ 5   Minute                           (0-59)
+ 6   Second                           (0-59.999)
+ 7   Burst counter
+ 8   Ensemble counter
+ 9   Error code
+10   Status code
+11   Battery voltage                  (V)
+12   Soundspeed                       (m/s)
+13   Heading                          (degrees)
+14   Pitch                            (degrees)
+15   Roll                             (degrees)
+16   Pressure                         (dbar)
+17   Temperature                      (degrees C)
+18   Analog input 1
+19   Analog input 2
+
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.dat]
+Header...
+ 1   Month                            (1-12)
+ 2   Day                              (1-31)
+ 3   Year
+ 4   Hour                             (0-23)
+ 5   Minute                           (0-59)
+ 6   Second                           (0-59)
+ 7   Burst counter
+ 8   Ensemble counter
+ 9   Error code
+10   Status code
+11   Battery voltage                  (V)
+12   Soundspeed                       (m/s)
+13   Heading                          (degrees)
+14   Pitch                            (degrees)
+15   Roll                             (degrees)
+16   Pressure                         (dbar)
+17   Temperature                      (degrees C)
+18   Analog input 1
+19   Analog input 2
+20   Number of beams
+21   Number of cells
+Velocity profile...
+ 1   Cell number
+ 2   Cell position                    (m)
+ 3   Velocity (Beam1|X|East)          (m/s)
+ 4   Velocity (Beam2|Y|North)         (m/s)
+ 5   Velocity (Beam3|Z|Up)            (m/s)
+ 6   Velocity (Beam4|Z2|Up2)          (m/s)
+ 7   Amplitude (Beam1)                (counts)
+ 8   Amplitude (Beam2)                (counts)
+ 9   Amplitude (Beam3)                (counts)
+10   Amplitude (Beam4)                (counts)
+11   Correlation (Beam1)              (%)
+12   Correlation (Beam2)              (%)
+13   Correlation (Beam3)              (%)
+14   Correlation (Beam4)              (%)
+15   Speed                            (m/s)
+16   Direction                        (degrees)
+ ...repeated for all cells in profile.
+
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.csv]
+ 1   DateTime                         
+ 2   Battery voltage                  (V)
+ 3   Heading                          (degrees)
+ 4   Pitch                            (degrees)
+ 5   Roll                             (degrees)
+ 6   Pressure                         (dbar)
+ 7   Temperature                      (degrees C)
+ 8   Analog input 1
+ 9   Analog input 2
+10   Speed cell 1                     (m/s)
+11   Direction cell 1                 (degrees)
+10-11 repeated for all cells in profile.
+
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.nmea]
+ Refer to Interface Guide for format description.
+
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.whd]
+ 1   Month                            (1-12)
+ 2   Day                              (1-31)
+ 3   Year
+ 4   Hour                             (0-23)
+ 5   Minute                           (0-59)
+ 6   Second                           (0-59)
+ 7   Burst counter
+ 8   No of wave data records
+ 9   Battery voltage                  (V)
+10   Soundspeed                       (m/s)
+11   Heading                          (degrees)
+12   Pitch                            (degrees)
+13   Roll                             (degrees)
+13   Temperature                      (degrees C)
+
+---------------------------------------------------------------------
+[D:\Documents\Thesis_Research\Signature_1000\AD2CPData.289.00000_B0.wad]
+ 1   Month                            (1-12)
+ 2   Day                              (1-31)
+ 3   Year
+ 4   Hour                             (0-23)
+ 5   Minute                           (0-59)
+ 6   Second                           (0-59.999)
+ 7   Burst counter
+ 8   Ensemble counter
+ 9   Pressure                         (dbar)
+10   LE Distance                      (m)
+11   LE Quality                       (counts)
+12   AST Distance                     (m)
+13   AST Quality                      (counts)
+14   Heading                          (degrees)
+15   Pitch                            (degrees)
+16   Roll                             (degrees)
+17   AST time offset                  (100us)
+18   Number of beams
+19   Number of cells
+Velocity profile...
+ 1   Cell number
+ 2   Cell position                    (m)
+ 3   Velocity (Beam1|X|East)          (m/s)
+ 4   Velocity (Beam2|Y|North)         (m/s)
+ 5   Velocity (Beam3|Z|Up)            (m/s)
+ 6   Velocity (Beam4|Z2|Up2)          (m/s)
+ 7   Amplitude (Beam1)                (dB)
+ 8   Amplitude (Beam2)                (dB)
+ 9   Amplitude (Beam3)                (dB)
+10   Amplitude (Beam4)                (dB)
+11   Correlation (Beam1)              (%)
+12   Correlation (Beam2)              (%)
+13   Correlation (Beam3)              (%)
+14   Correlation (Beam4)              (%)
+15   Speed                            (m/s)
+16   Direction                        (degrees)
+ ...repeated for all cells in profile.
