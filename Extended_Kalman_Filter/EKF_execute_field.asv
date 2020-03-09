@@ -17,7 +17,7 @@ load(directory_ADCP + 'AD2CPData.346.00002_1_Proc.mat');
 PF_RB=PF_RB(sel,:);
 NAVDR(1,:)=[];
 NAVDR=NAVDR(sel,:);
-%NAVDR.NAV_SPEED=NAVDR.NAV_SPEED-.5;
+NAVDR.NAV_SPEED=NAVDR.NAV_SPEED-.5;
 
 for jj=1:length(NAVDR.NAV_HEADING)
     if NAVDR.NAV_HEADING(jj)>180
@@ -62,7 +62,7 @@ Interp.Bearing=interp1(PF_RB.Time,PF_RB.Bearing,Interp.Time);
 
 %% Execute filter
 %[data,epsilon_v]=NCV_field(NAVDR, SOURCEXY, ACOUSTICRB, e_gps_interp, n_gps_interp); % MOOS data
-[data,epsilon_v,rho_bar,P_minus_out,S_out,K_out,z_k_out,F_out]=NCV_C_field(Interp); %PF data
+[data,epsilon_v,rho_bar,P_minus_out,H_out,S_out,K_out,z_k_out,h_out,F_out]=NCV_C_field(Interp); %PF data
 
 %% Plot results
 steps=length(Interp.Time);
@@ -93,27 +93,80 @@ legend('Filter Output','Input Measurement','Jetyak Position')
 figure(3)
 reset(gca)
 yyaxis left
-plot(1:steps,data(16,:),1:steps,data(18,:))
+plot(1:steps,data(20,:),1:steps,data(22,:))
 title('Innovation vs Filter Step')
 xlabel('Filter Step')
-ylabel('Position/Speed (meters/meters per second)')
+ylabel('Position (m)')
 yyaxis right
-plot(1:steps,data(17,:),1:steps,data(19,:))
+plot(1:steps,data(21,:),1:steps,data(23,:))
 ylabel('Angle (degrees)')
 legend('Range','Azimuth','STW','Heading')
 
 figure(4)
 plot(1:steps,mag)
-title('Calculated Current Magnitude vs Filter Step')
-xlabel('Filter Step')
-ylabel('Current Magnitude')
-
+% axis([0 steps 0 3])
+% 
 figure(5)
-plot(1:steps,plot_dir)
-title('Calculated Current Direction vs Filter Step')
-xlabel('Filter Step')
-ylabel('Current Direction')
+plot(1:steps,dir)
 
+% figure
+% plot(epsilon)
+% 
+% figure
+% ax1 = subplot(6,1,1);
+% x = 1:steps;
+% y1 = mu(1,:); 
+% plot(ax1,x,y1)
+% axis([0 steps -2.25 2.25])
+% 
+% ax2 = subplot(6,1,2);
+% x = 1:steps;
+% y2 = mu(2,:); 
+% plot(ax2,x,y2)
+% axis([0 steps -2.25 2.25])
+% 
+% ax3 = subplot(6,1,3);
+% x = 1:steps;
+% y3 = mu(3,:); 
+% plot(ax3,x,y3)
+% axis([0 steps -2.25 2.25])
+% 
+% ax4 = subplot(6,1,4);
+% x = 1:steps;
+% y4 = mu(4,:); 
+% plot(ax4,x,y4)
+% axis([0 steps -2.25 2.25])
+% 
+% ax5 = subplot(6,1,5);
+% x = 1:steps;
+% y5 = mu(5,:); 
+% plot(ax5,x,y5)
+% axis([0 steps -2.25 2.25])
+% 
+% ax6 = subplot(6,1,6);
+% x = 1:steps;
+% y6 = mu(6,:); 
+% plot(ax6,x,y6)
+% axis([0 steps -2.25 2.25])
+% 
+% yline(ax1,1.96,'--b');
+% yline(ax2,1.96,'--b');
+% yline(ax3,1.96,'--b');
+% yline(ax4,1.96,'--b');
+% yline(ax5,1.96,'--b');
+% yline(ax6,1.96,'--b');
+% yline(ax1,-1.96,'--b');
+% yline(ax2,-1.96,'--b');
+% yline(ax3,-1.96,'--b');
+% yline(ax4,-1.96,'--b');
+% yline(ax5,-1.96,'--b');
+% yline(ax6,-1.96,'--b');
+% 
 figure(6)
+plot(epsilon_v_bar)
+
+
+ %% Plot quiver
 reset(gca);
+figure(7)
 quiver(data(7,:),data(9,:),data(11,:),data(12,:))
