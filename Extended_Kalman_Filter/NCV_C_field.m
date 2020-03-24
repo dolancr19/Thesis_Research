@@ -1,5 +1,5 @@
 %function [data,epsilon_v]= NCV_field(NAVDR, SOURCEXY, ACOUSTICRB, e_gps_interp, n_gps_interp) %MOOS data
-function [data,epsilon_v_bar,rho_bar,P_minus_out,S_out,K_out,z_k_out,F_out]=NCV_C_field(Interp) %PF data
+function [data,epsilon_v,rho_bar,P_minus_out,S_out,K_out,z_k_out,F_out]=NCV_C_field(Interp) %PF data
 steps=length(Interp.Time);
 data=zeros(19,steps); %matrix for post-processing data
 
@@ -57,11 +57,8 @@ H=[1 0 0 0 0 0;0 1 0 0 0 0;0 0 1 0 0 0;0 0 0 1 0 0];
 epsilon_v=zeros(1,steps);
 %mu=zeros(length(x_k_plus),steps);
 K_out=zeros(6,4,steps);
-H_out=zeros(4,6,steps);
 S_out=zeros(4,4,steps);
 P_minus_out=zeros(6,6,steps);
-
-h_out=zeros(4,steps);
 F_out=zeros(6,6,steps);
 %% Execute filter
 for ii=2:steps
@@ -124,7 +121,7 @@ for ii=2:steps
     P_plus=(eye(6)-K*H)*P_minus*(eye(6)-K*H)'+K*R*K';
     
     %Calculate the normalized innovation squared (NIS)
-    epsilon_v(ii)=r_k.'*(S\r_k);
+    epsilon_v(ii)=r_k.'*inv(S)*r_k;
         
     data(7:12,ii)=x_k_plus;
     data(13,ii)=hypot(x_k_plus(2,1),x_k_plus(4,1));
@@ -132,30 +129,29 @@ for ii=2:steps
     data(15,ii)=norm(P_plus);
     data(16:19,ii)=r_k;
 end
-epsilon_v(isnan(epsilon_v))=0;
-epsilon_v_bar=(1/steps)*sum(epsilon_v);
 
-% sum_kj=zeros(length(r_k),1);
-% sum_kk=zeros(length(r_k),1);
-% sum_jj=zeros(length(r_k),1);
-% for jj=1:steps-1
-%     sum_kj(1)=sum_kj(1)+(data(16,jj)*data(16,jj+1));
-%     sum_kj(2)=sum_kj(2)+(data(17,jj)*data(17,jj+1));
-%     sum_kj(3)=sum_kj(3)+(data(18,jj)*data(18,jj+1));
-%     sum_kj(4)=sum_kj(4)+(data(19,jj)*data(19,jj+1));
-%     sum_kk(1)=sum_kk(1)+(data(16,jj))^2;
-%     sum_kk(2)=sum_kk(2)+(data(17,jj))^2;
-%     sum_kk(3)=sum_kk(3)+(data(18,jj))^2;
-%     sum_kk(4)=sum_kk(4)+(data(19,jj))^2;
-%     sum_jj(1)=sum_jj(1)+(data(20,jj+1))^2;
-%     sum_jj(2)=sum_jj(2)+(data(20:23,jj+1))^2;
-%     sum_jj=sum_jj+(data(20:23,jj+1))^2;
-%     sum_jj=sum_jj+(data(20:23,jj+1))^2;
-% end
+
+sum_kj=zeros(length(r_k),1);
+sum_kk=zeros(length(r_k),1);
+sum_jj=zeros(length(r_k),1);
+for jj=1:steps-1
+    sum_kj(1)=sum_kj(1)+(data(16,jj)*data(16,jj+1));
+    sum_kj(2)=sum_kj(2)+(data(17,jj)*data(17,jj+1));
+    sum_kj(3)=sum_kj(3)+(data(18,jj)*data(18,jj+1));
+    sum_kj(4)=sum_kj(4)+(data(19,jj)*data(19,jj+1));
+    sum_kk(1)=sum_kk(1)+(data(16,jj))^2;
+    sum_kk(2)=sum_kk(2)+(data(17,jj))^2;
+    sum_kk(3)=sum_kk(3)+(data(18,jj))^2;
+    sum_kk(4)=sum_kk(4)+(data(19,jj))^2;
+    sum_jj(1)=sum_jj(1)+(data(16,jj+1))^2;
+    sum_jj(2)=sum_jj(2)+(data(17,jj+1))^2;
+    sum_jj(3)=sum_jj(3)+(data(18,jj+1))^2;
+    sum_jj(4)=sum_jj(4)+(data(19,jj+1))^2;
+end
 rho_bar=zeros(4,1);
-% rho_bar(1,1)=sum_kj(1)*sqrt(sum_kk(1)*sum_jj(1));
-% rho_bar(2,1)=sum_kj(2)*sqrt(sum_kk(2)*sum_jj(2));
-% rho_bar(3,1)=sum_kj(3)*sqrt(sum_kk(3)*sum_jj(3));
-% rho_bar(4,1)=sum_kj(4)*sqrt(sum_kk(4)*sum_jj(4));
+rho_bar(1,1)=sum_kj(1)/sqrt(sum_kk(1)*sum_jj(1));
+rho_bar(2,1)=sum_kj(2)/sqrt(sum_kk(2)*sum_jj(2));
+rho_bar(3,1)=sum_kj(3)/sqrt(sum_kk(3)*sum_jj(3));
+rho_bar(4,1)=sum_kj(4)/sqrt(sum_kk(4)*sum_jj(4));
 
 end

@@ -3,11 +3,14 @@ clear variables;
 clc
 
 %% Define contants
-iterations=10;
+iterations=1;
 freq=10; %Number of cycles per second
 steps=4000*freq; %# of filter steps desired
-track=build_track(freq,steps); %build simulated values for speed through the water and heading
+track0=build_track(freq,steps); %build simulated values for speed through the water and heading
+speeds=[0];
+headings=[10];
 
+v_k_full=randn(4,steps);
 set0=.25;
 drift0=60;
 variation=0; % zero for constant current, non-zero defines band for oscillating current
@@ -26,6 +29,12 @@ x0_pos=10;
 y0_pos=20;
 stw0=.50;
 hdg0=30;
+%% Execute filter
+% Add bias for testing
+for oo=1:length(speeds)
+    track.stw=track0.stw+speeds(oo);
+    for pp=1:length(headings)
+        track.hdg=track0.hdg+headings(pp);
 
 for ii=1:iterations
     % Uncomment below for different current for each run
@@ -39,7 +48,7 @@ for ii=1:iterations
     current=build_current(steps, set0, drift0, variation);
 
 %     [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current);
-    [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_C(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current);
+    [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_C(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0);
     data_full(:,:,ii)=data;
     epsilon_full(ii,:)=epsilon;
     epsilon_bar=epsilon_bar+epsilon;
@@ -52,7 +61,9 @@ end
 epsilon_bar=epsilon_bar/iterations;
 epsilon_v_bar=epsilon_v_bar/iterations;
 mu_bar=mu_bar/iterations;
-
+save(string(speeds(oo))+'_'+string(headings(pp))+'.mat','data_full','epsilon_bar','epsilon_v_bar','mu_bar','-v7.3')
+    end
+end
 
 %% Plot results
 chi_sq_upper1=chi2inv(0.995,6*iterations)/iterations;
@@ -64,76 +75,100 @@ figure(1)
 plot(epsilon_bar)
 yline(chi_sq_upper1,'--b');
 yline(chi_sq_lower1,'--b');
+title('10 Run Normalized Estimation Error Squared (NEES)')
+xlabel('Filter Step')
+ylabel('NEES')
 
 figure(2)
 plot(epsilon_v_bar)
 yline(chi_sq_upper2,'--b');
 yline(chi_sq_lower2,'--b');
+title('10 Run Normalized Innovation Squared (NIS)')
+xlabel('Filter Step')
+ylabel('NIS')
 
-figure
+figure(3)
 plot(1:steps,data_full(17,:,1))
 title('Error Covariance Matrix Norm vs Filter Step')
 xlabel('Filter Step')
 ylabel('Error Covariance Matrix Norm')
 
-figure
+figure(4)
+reset(gca)
+yyaxis left
 plot(1:steps,data_full(18,:,1))
-%axis([0 steps -5 5])
 title('Filter Error vs Filter Step')
 xlabel('Filter Step')
 ylabel('Filter Error (m)')
-
-figure
+yyaxis right
 plot(1:steps,data_full(19,:,1))
-%axis([0 steps -5 5])
-title('Filter Error vs Filter Step')
-xlabel('Filter Step')
 ylabel('Filter Error (degrees)')
+legend('Position Error','Azimuth Error')
 
-figure
+figure(5)
+reset(gca)
 plot(data_full(7,:,1),data_full(9,:,1),data_full(15,:,1),data_full(16,:,1))
 axis equal
 title('Acutal Position vs Filter Output Position')
-xlabel('x position (m)')
-ylabel('y position (m)')
+xlabel('Easting position (m)')
+ylabel('Northing position (m)')
 legend('Filter Output','Actual Position','location','southeast')
 
-figure
+figure(6)
+reset(gca)
 ax1 = subplot(6,1,1);
 x = 1:steps;
 y1 = mu_bar(1,:); 
 plot(ax1,x,y1)
 axis([0 steps -3 3])
+title('Easting Position')
+xlabel('Filter Step')
+ylabel('NMEE')
 
 ax2 = subplot(6,1,2);
 x = 1:steps;
 y2 = mu_bar(2,:); 
 plot(ax2,x,y2)
 axis([0 steps -3 3])
+title('Easting STW')
+xlabel('Filter Step')
+ylabel('NMEE')
 
 ax3 = subplot(6,1,3);
 x = 1:steps;
 y3 = mu_bar(3,:); 
 plot(ax3,x,y3)
 axis([0 steps -3 3])
+title('Northing Position')
+xlabel('Filter Step')
+ylabel('NMEE')
 
 ax4 = subplot(6,1,4);
 x = 1:steps;
 y4 = mu_bar(4,:); 
 plot(ax4,x,y4)
 axis([0 steps -3 3])
+title('Northing STW')
+xlabel('Filter Step')
+ylabel('NMEE')
 
 ax5 = subplot(6,1,5);
 x = 1:steps;
 y5 = mu_bar(5,:); 
 plot(ax5,x,y5)
 axis([0 steps -3 3])
+title('Easting Current')
+xlabel('Filter Step')
+ylabel('NMEE')
 
 ax6 = subplot(6,1,6);
 x = 1:steps;
 y6 = mu_bar(6,:); 
 plot(ax6,x,y6)
 axis([0 steps -3 3])
+title('Northing Current')
+xlabel('Filter Step')
+ylabel('NMEE')
 
 yline(ax1,2.57/sqrt(iterations),'--b');
 yline(ax2,2.57/sqrt(iterations),'--b');
@@ -146,45 +181,22 @@ yline(ax2,-2.57/sqrt(iterations),'--b');
 yline(ax3,-2.57/sqrt(iterations),'--b');
 yline(ax4,-2.57/sqrt(iterations),'--b');
 yline(ax5,-2.57/sqrt(iterations),'--b');
-yline(ax6,-1.96/sqrt(iterations),'--b');
+yline(ax6,-2.57/sqrt(iterations),'--b');
+
+sgtitle('10 Run Normalized Mean Estimation Error (NMEE)')
 
 mag=hypot(data_full(11,:,1),data_full(12,:,1));
 dir=atan2d(data_full(12,:,1),data_full(11,:,1));
 
-figure
+figure(7)
+reset(gca)
+yyaxis left
 plot(1:steps,current.set,1:steps,mag)
-axis([0 steps 0 3])
-
-figure
+title('Calculated Current vs Filter Step')
+xlabel('Filter Step')
+ylabel('Magnitude (m/s)')
+axis([1 steps 0 1])
+yyaxis right
 plot(1:steps,current.drift,1:steps,dir)
-
-% std_dev1=sqrt(P_plus_out(1,:));
-% std_dev2=sqrt(P_plus_out(2,:));
-% std_dev3=sqrt(P_plus_out(3,:));
-% std_dev4=sqrt(P_plus_out(4,:));
-% std_dev5=sqrt(P_plus_out(5,:));
-% std_dev6=sqrt(P_plus_out(6,:));
-% 
-% velocity_e=(track.stw.*cosd(track.hdg)).';
-% velocity_n=(track.stw.*sind(track.hdg)).';
-% current_e=(current.set.*cosd(current.drift)).';
-% current_n=(current.set.*sind(current.drift)).';
-% 
-% figure
-% plot(1:steps,data(15,:),1:steps,data(7,:),1:steps,data(15,:)+std_dev1,'--',1:steps,data(15,:)-std_dev1,'--')
-% legend('Actual Easting Position','Filter Easting Position', 'Easting Position Upper Bound','Easting Position Lower Bound')
-% figure
-% plot(1:steps,velocity_e,1:steps,data(8,:),1:steps,velocity_e+std_dev2,'--',1:steps,velocity_e-std_dev2,'--')
-% legend('Actual Easting Velocity','Filter Easting Velocity', 'Easting Velocity Upper Bound','Easting Velocity Lower Bound')
-% figure
-% plot(1:steps,data(16,:),1:steps,data(9,:),1:steps,data(16,:)+std_dev3,'--',1:steps,data(16,:)-std_dev3,'--')
-% legend('Actual Easting Position','Filter Easting Position', 'Easting Position Upper Bound','Easting Position Lower Bound')
-% figure
-% plot(1:steps,velocity_n,1:steps,data(10,:),1:steps,velocity_n+std_dev4,'--',1:steps,velocity_n-std_dev4,'--')
-% legend('Actual Northing Velocity','Filter Northing Velocity', 'Northing Velocity Upper Bound','Northing Velocity Lower Bound')
-% figure
-% plot(1:steps,current_e,1:steps,data(11,:),1:steps,current_e+std_dev5,'--',1:steps,current_e-std_dev5,'--')
-% legend('Actual Easting Current','Filter Easting Current', 'Easting Current Upper Bound','Easting Current Lower Bound')
-% figure
-% plot(1:steps,current_n,1:steps,data(12,:),1:steps,current_n+std_dev6,'--',1:steps,current_n-std_dev6,'--')
-% legend('Actual Northing Current','Filter Northing Current', 'Northing Current Upper Bound','Northing Current Lower Bound')
+ylabel('Direction (degrees)')
+axis([1 steps -180 180])

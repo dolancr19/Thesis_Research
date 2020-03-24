@@ -85,21 +85,25 @@
 %     e_source=Interp.e_gps(aa)-Interp.Range(aa)*cosd(Interp.Bearing(aa));
 %     n_source=Interp.n_gps(aa)-Interp.Range(aa)*sind(Interp.Bearing(aa));
 % end
-sel = zeros(length(ACOUSTIC_STDDEV.ACOUSTIC_STDDEV_1),1);
-for ii=1:length(sel)
-    if ACOUSTIC_STDDEV.ACOUSTIC_STDDEV_1(ii) <= 15 && ACOUSTIC_STDDEV.ACOUSTIC_STDDEV_2(ii) <= 15
-        sel(ii)=true;
-    else
-        sel(ii)=false;
-    end
-end
-sel=logical(sel);
+% sel = zeros(length(ACOUSTIC_STDDEV.ACOUSTIC_STDDEV_1),1);
+% for ii=1:length(sel)
+%     if ACOUSTIC_STDDEV.ACOUSTIC_STDDEV_1(ii) <= 15 && ACOUSTIC_STDDEV.ACOUSTIC_STDDEV_2(ii) <= 15
+%         sel(ii)=true;
+%     else
+%         sel(ii)=false;
+%     end
+% end
+% sel=logical(sel);
+% 
+% for jj=1:length(sel)
+%     if sel(jj)==true
+%         test_out(jj)= ACOUSTIC_STDDEV.ACOUSTIC_STDDEV_1(jj);
+%     else
+%         test_out(jj)=0;
+%     end
+% end
+% plot(test_out)
 
-for jj=1:length(sel)
-    if sel(jj)==true
-        test_out(jj)= ACOUSTIC_STDDEV.ACOUSTIC_STDDEV_1(jj);
-    else
-        test_out(jj)=0;
-    end
-end
-plot(test_out)
+test_string(1)=1;
+test_string(2)=.1;
+string(test_string(1))+'_'+string(test_string(2))

@@ -66,15 +66,21 @@ track.hdg=zeros(steps,1);
 %     end
 %% Out and back
 for ii=1:steps
-    if ii<=steps/2
+    if ii<=steps*.33
         track.stw(ii)=.5;
         track.hdg(ii)=30;
-    elseif ii<=(steps/2)+(180*freq)
+    elseif ii<=(steps*.33)+(180*freq)
+        track.stw(ii)=.5;
+        track.hdg(ii)=track.hdg(ii-1)-.1;
+    elseif ii<=steps*.66
+        track.stw(ii)=.5;
+        track.hdg(ii)=-150;
+    elseif ii<=(steps*.66)+(180*freq)
         track.stw(ii)=.5;
         track.hdg(ii)=track.hdg(ii-1)-.1;
     else 
         track.stw(ii)=.5;
-        track.hdg(ii)=-150;
+        track.hdg(ii)=30;
     end
 end
     track.hdg=90.-track.hdg;
@@ -85,5 +91,37 @@ end
             track.hdg(jj)=track.hdg(jj)+360;
         end
     end
-
+%% Box
+% for ii=1:steps
+%     if ii<=steps*.25
+%         track.stw(ii)=.5;
+%         track.hdg(ii)=90;
+%     elseif ii<=(steps*.25)+(90*freq)
+%         track.stw(ii)=.5;
+%         track.hdg(ii)=track.hdg(ii-1)-.1;
+%     elseif ii<=steps*.5
+%         track.stw(ii)=.5;
+%         track.hdg(ii)=0;
+%     elseif ii<=(steps*.5)+(90*freq)
+%         track.stw(ii)=.5;
+%         track.hdg(ii)=track.hdg(ii-1)-.1;
+%     elseif ii<=steps*.75
+%         track.stw(ii)=.5;
+%         track.hdg(ii)=-90;
+%     elseif ii<=(steps*.75)+(90*freq)
+%         track.stw(ii)=.5;
+%         track.hdg(ii)=track.hdg(ii-1)-.1;
+%     else 
+%         track.stw(ii)=.5;
+%         track.hdg(ii)=-180;
+%     end
+% end
+%     track.hdg=90.-track.hdg;
+%     for jj=1:length(track.hdg)
+%         if track.hdg(jj)>180
+%             track.hdg(jj)=track.hdg(jj)-360;
+%         elseif track.hdg(jj)<-180
+%             track.hdg(jj)=track.hdg(jj)+360;
+%         end
+%     end
 end

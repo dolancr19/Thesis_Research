@@ -66,6 +66,10 @@ Interp.Bearing=interp1(PF_RB.Time,PF_RB.Bearing,Interp.Time);
 
 %% Plot results
 steps=length(Interp.Time);
+epsilon_v_bar_upper=chi2inv(0.995,4*steps)/steps;
+epsilon_v_bar_lower=chi2inv(0.005,4*steps)/steps;
+epsilon_v(isnan(epsilon_v))=0;
+epsilon_v_bar=(1/steps)*sum(epsilon_v);
 mag=hypot(data(11,:),data(12,:));
 dir=atan2d(data(12,:),data(11,:));
 
@@ -96,11 +100,11 @@ yyaxis left
 plot(1:steps,data(16,:),1:steps,data(18,:))
 title('Innovation vs Filter Step')
 xlabel('Filter Step')
-ylabel('Position/Speed (meters/meters per second)')
+ylabel('Range (m)')
 yyaxis right
 plot(1:steps,data(17,:),1:steps,data(19,:))
-ylabel('Angle (degrees)')
-legend('Range','Azimuth','STW','Heading')
+ylabel('Speed (m/s)')
+legend('Easting Range','Northing Range','Easting STW','Northing STW')
 
 figure(4)
 plot(1:steps,mag)
@@ -117,3 +121,6 @@ ylabel('Current Direction')
 figure(6)
 reset(gca);
 quiver(data(7,:),data(9,:),data(11,:),data(12,:))
+title('Calculated Current Field')
+xlabel('Easting position (m)')
+ylabel('Northing position (m)')
