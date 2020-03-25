@@ -3,11 +3,11 @@ clear variables;
 clc
 
 %% Define contants
-iterations=1;
+iterations=10;
 freq=10; %Number of cycles per second
 steps=4000*freq; %# of filter steps desired
 track0=build_track(freq,steps); %build simulated values for speed through the water and heading
-speeds=[.1];
+speeds=[0];
 headings=[0];
 
 v_k_full=randn(4,steps);
@@ -48,7 +48,7 @@ for ii=1:iterations
     current=build_current(steps, set0, drift0, variation);
 
 %     [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current);
-    [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out,b]=NCV_C(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0);
+    [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_C(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0);
     data_full(:,:,ii)=data;
     epsilon_full(ii,:)=epsilon;
     epsilon_bar=epsilon_bar+epsilon;

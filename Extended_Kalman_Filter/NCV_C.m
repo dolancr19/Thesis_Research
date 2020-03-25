@@ -1,4 +1,4 @@
-function [data,epsilon,epsilon_v,mu, K_out, R_out, P_plus_out, P_minus_out,b]= NCV_C(freq, steps, x0_pos, y0_pos, stw0, hdg0, track, current,v_k_full,track0)
+function [data,epsilon,epsilon_v,mu, K_out, R_out, P_plus_out, P_minus_out]= NCV_C(freq, steps, x0_pos, y0_pos, stw0, hdg0, track, current,v_k_full,track0)
 % %% Prepare workspace
 % clear variables;
 % clc
@@ -43,14 +43,14 @@ n0_current=0;%current.set(1)*sind(current.drift(1));
 %Initialize state vectors
 x_k_minus=[x0_pos;x0_vel;y0_pos;y0_vel;e0_current;n0_current]; 
 x_k_plus=x_k_minus;
-x_k_plus_RA=x_k_plus(1:4,1);
+% x_k_plus_RA=x_k_plus(1:4,1);
 
 %Define Q, the covariance matrix for noise associated with the state vector
-var_Qp=.4; % position
+var_Qp=.4; % position .4 last baseline
 var_Qw=.04; % water referenced velocity, .04 is baseline
 var_Qc=.01; % current velocity, .01 is baseline
 Q=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2,var_Qc^2,var_Qc^2]);
-Q_RA=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2]);%,var_Qc^2,var_Qc^2]);
+% Q_RA=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2]);%,var_Qc^2,var_Qc^2]);
 
 %Compute R, the covariance matrix associated with measurement error
 var_Rr_r=1^2; % range
@@ -68,11 +68,11 @@ var_Ps=.1^2; % velocity
 P_minus=diag([var_Pr,var_Ps,var_Pr,var_Ps,var_Ps,var_Ps]);
 P_plus=P_minus;
 
-P_minus_RA=diag([var_Pr,var_Ps,var_Pr,var_Ps]);%,var_Ps,var_Ps]);
-P_plus_RA=P_minus_RA;
+% P_minus_RA=diag([var_Pr,var_Ps,var_Pr,var_Ps]);%,var_Ps,var_Ps]);
+% P_plus_RA=P_minus_RA;
 
-b=[0;0;0;0];
-b_cov=zeros(4);
+% b=[0;0;0;0];
+% b_cov=zeros(4);
 %Initialize measurement vector
 range_x=x0_pos;
 range_y=y0_pos;
@@ -89,7 +89,7 @@ K_out=zeros(length(x_k_plus),steps);
 R_out=zeros(4,4,steps);
 P_minus_out=zeros(6,steps);
 P_plus_out=zeros(6,steps);
-b_out=zeros(4,steps);
+% b_out=zeros(4,steps);
 %% Execute filter
 for ii=1:steps
     %Calculate state estimate and error covariance matrix for next step
@@ -142,7 +142,8 @@ for ii=1:steps
     R(2,4)=sin(hdg_r)*cos(hdg_r)*exp(-2*var_Ra1_r)*(var_Rs_r+stw^2*(1-exp(var_Ra1_r)));
     R(4,2)=R(2,4);
     
-    R=R+b_cov;
+%     R=R+b_cov;
+
 %     %Remove simulated iUSBL measurements for bias testing
 %     mu_t=[stw*cos(hdg_r)*((exp(-.5*var_Ra1_r))-1);stw*sin(hdg_r)*((exp(-.5*var_Ra1_r))-1)];
 %     
@@ -166,7 +167,7 @@ for ii=1:steps
 %     R(2,4)=(var_Rs_r-stw^2*var_Ra1_r)*sin(hdg_r)*cos(hdg_r);
 %     R(4,2)=R(2,4);
     
-%     v_k=randn(4,1); %normal
+     v_k=randn(4,1); %normal
 %     v_k=randn(2,1); %remove simulated iUSBL measurements for bias testing
     [V_R,D_R]=eig(R);
 %         [~,ind] = sort(diag(D_R),'descend');
@@ -174,8 +175,9 @@ for ii=1:steps
 %         V_Rs = V_R(:,ind);
     d=diag(D_R);
     d=real(sqrt(d));
-    v_k=V_R*(d.*v_k_full(:,ii));
-    z_k=[range_x;stw_x;range_y;stw_y]+v_k-mu_t+b; %normal
+    v_k=V_R*(d.*v_k); %varible noise for Monte Carlo testing
+%     v_k=V_R*(d.*v_k_full(:,ii)); %same noise for bias testing
+    z_k=[range_x;stw_x;range_y;stw_y]+v_k-mu_t;%+b; %normal
 %     z_k=[stw_x;stw_y]+v_k-mu_t; %remove simulated iUSBL measurements for bias testing
 
     %Calculate innovation
@@ -195,23 +197,23 @@ for ii=1:steps
     P_plus=(eye(6)-K*H)*P_minus*((eye(6)-K*H).')+K*R*K.';
     P_plus_out(:,ii)=diag(P_plus);
     
-    [x_k_plus_RA,P_plus_RA]= NCV_C_RA(freq,x_k_plus_RA,P_plus_RA, Q_RA,v_k,range_x,range_y);
-    
-    sog_all=[x_k_plus(2,1);x_k_plus(4,1)]+[x_k_plus(5,1);x_k_plus(6,1)];
-    sog_RA=[x_k_plus_RA(2,1);x_k_plus_RA(4,1)];
-    
-    sog_diff=sog_RA-sog_all;
-    
-    b(2,1)=sog_diff(1,1);
-    b(4,1)=sog_diff(2,1);
-    b_out(:,ii)=b;
-    
-    sog_cov=[P_plus(2,2) P_plus(2,4);P_plus(4,2) P_plus(4,4)]+[P_plus(5,5) P_plus(5,6);P_plus(6,5) P_plus(6,6)]+[P_plus_RA(2,2) P_plus_RA(2,4);P_plus_RA(4,2) P_plus_RA(4,4)];
-    
-    b_cov(2,2)=sog_cov(1,1);
-    b_cov(4,4)=sog_cov(2,2);
-    b_cov(2,4)=sog_cov(1,2);
-    b_cov(4,2)=sog_cov(2,1);
+%     [x_k_plus_RA,P_plus_RA]= NCV_C_RA(freq,x_k_plus_RA,P_plus_RA, Q_RA,v_k,range_x,range_y);
+%     
+%     sog_all=[x_k_plus(2,1);x_k_plus(4,1)]+[x_k_plus(5,1);x_k_plus(6,1)];
+%     sog_RA=[x_k_plus_RA(2,1);x_k_plus_RA(4,1)];
+%     
+%     sog_diff=sog_RA-sog_all;
+%     
+%     b(2,1)=sog_diff(1,1);
+%     b(4,1)=sog_diff(2,1);
+%     b_out(:,ii)=b;
+%     
+%     sog_cov=[P_plus(2,2) P_plus(2,4);P_plus(4,2) P_plus(4,4)]+[P_plus(5,5) P_plus(5,6);P_plus(6,5) P_plus(6,6)]+[P_plus_RA(2,2) P_plus_RA(2,4);P_plus_RA(4,2) P_plus_RA(4,4)];
+%     
+%     b_cov(2,2)=sog_cov(1,1);
+%     b_cov(4,4)=sog_cov(2,2);
+%     b_cov(2,4)=sog_cov(1,2);
+%     b_cov(4,2)=sog_cov(2,1);
     
     %P_plus=P_plus+b_cov;
     

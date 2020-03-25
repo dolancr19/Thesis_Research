@@ -64,33 +64,54 @@ track.hdg=zeros(steps,1);
 %     else
 %         track(ii,2)=30;
 %     end
+%% Racetrack for bias determination
+% for ii=1:steps
+%     if ii<=steps*.33
+%         track.stw(ii)=.5;
+%         track.hdg(ii)=30;
+%     elseif ii<=(steps*.33)+(180*freq)
+%         track.stw(ii)=.5;
+%         track.hdg(ii)=track.hdg(ii-1)-.1;
+%     elseif ii<=steps*.66
+%         track.stw(ii)=.5;
+%         track.hdg(ii)=-150;
+%     elseif ii<=(steps*.66)+(180*freq)
+%         track.stw(ii)=.5;
+%         track.hdg(ii)=track.hdg(ii-1)-.1;
+%     else 
+%         track.stw(ii)=.5;
+%         track.hdg(ii)=30;
+%     end
+% end
+%     track.hdg=90.-track.hdg;
+%     for jj=1:length(track.hdg)
+%         if track.hdg(jj)>180
+%             track.hdg(jj)=track.hdg(jj)-360;
+%         elseif track.hdg(jj)<-180
+%             track.hdg(jj)=track.hdg(jj)+360;
+%         end
+%     end
 %% Out and back
 for ii=1:steps
-    if ii<=steps*.33
+    if ii<=steps*.5
         track.stw(ii)=.5;
         track.hdg(ii)=30;
-    elseif ii<=(steps*.33)+(180*freq)
-        track.stw(ii)=.5;
-        track.hdg(ii)=track.hdg(ii-1)-.1;
-    elseif ii<=steps*.66
-        track.stw(ii)=.5;
-        track.hdg(ii)=-150;
-    elseif ii<=(steps*.66)+(180*freq)
+    elseif ii<=(steps*.5)+(180*freq)
         track.stw(ii)=.5;
         track.hdg(ii)=track.hdg(ii-1)-.1;
     else 
         track.stw(ii)=.5;
-        track.hdg(ii)=30;
+        track.hdg(ii)=-150;
     end
 end
-    track.hdg=90.-track.hdg;
-    for jj=1:length(track.hdg)
-        if track.hdg(jj)>180
-            track.hdg(jj)=track.hdg(jj)-360;
-        elseif track.hdg(jj)<-180
-            track.hdg(jj)=track.hdg(jj)+360;
-        end
+track.hdg=90.-track.hdg;
+for jj=1:length(track.hdg)
+    if track.hdg(jj)>180
+        track.hdg(jj)=track.hdg(jj)-360;
+    elseif track.hdg(jj)<-180
+        track.hdg(jj)=track.hdg(jj)+360;
     end
+end
 %% Box
 % for ii=1:steps
 %     if ii<=steps*.25
