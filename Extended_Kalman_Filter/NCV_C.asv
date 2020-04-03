@@ -46,11 +46,20 @@ x_k_plus=x_k_minus;
 % x_k_plus_RA=x_k_plus(1:4,1);
 
 %Define Q, the covariance matrix for noise associated with the state vector
-var_Qp=.3; % position .4 last baseline
-var_Qw=.04; % water referenced velocity, .04 is baseline
-var_Qc=.01; % current velocity, .01 is baseline
-Q=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2,var_Qc^2,var_Qc^2]);
+% var_Qp=.4; % position .4 last baseline
+% var_Qw=.04; % water referenced velocity, .04 is baseline
+% var_Qc=.01; % current velocity, .01 is baseline
+% Q=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2,var_Qc^2,var_Qc^2]);
 % Q_RA=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2]);%,var_Qc^2,var_Qc^2]);
+
+%Compute Q with white noise acceleration plus process noise for the current
+% var_Q=.01^2;
+% var_Qc=.1^2;
+% Qc=diag([var_Qc var_Qc]); 
+% %var_Q=.0001^2;
+% G=[.5*(dt^2); dt;.5*(dt^2);dt];
+% Q=G*var_Q*G';
+% Q=[Q zeros(4,2);zeros(2,4) Qc];
 
 %Compute R, the covariance matrix associated with measurement error
 var_Rr_r=1^2; % range
@@ -167,7 +176,7 @@ for ii=1:steps
 %     R(2,4)=(var_Rs_r-stw^2*var_Ra1_r)*sin(hdg_r)*cos(hdg_r);
 %     R(4,2)=R(2,4);
     
-%     v_k=randn(4,1); %normal
+     v_k=randn(4,1); %normal
 %     v_k=randn(2,1); %remove simulated iUSBL measurements for bias testing
     [V_R,D_R]=eig(R);
 %         [~,ind] = sort(diag(D_R),'descend');
@@ -175,7 +184,8 @@ for ii=1:steps
 %         V_Rs = V_R(:,ind);
     d=diag(D_R);
     d=real(sqrt(d));
-    v_k=V_R*(d.*v_k_full(:,ii));
+    v_k=V_R*(d.*v_k); %varible noise for Monte Carlo testing
+%     v_k=V_R*(d.*v_k_full(:,ii)); %same noise for bias testing
     z_k=[range_x;stw_x;range_y;stw_y]+v_k-mu_t;%+b; %normal
 %     z_k=[stw_x;stw_y]+v_k-mu_t; %remove simulated iUSBL measurements for bias testing
 

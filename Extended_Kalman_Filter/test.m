@@ -104,6 +104,15 @@
 % end
 % plot(test_out)
 
-test_string(1)=1;
-test_string(2)=.1;
-string(test_string(1))+'_'+string(test_string(2))
+% test_string(1)=1;
+% test_string(2)=.1;
+% string(test_string(1))+'_'+string(test_string(2))
+
+dt=1;
+var_Q=.1^2;
+var_Qc=.01;
+Qc=diag([var_Qc var_Qc]); 
+%var_Q=.0001^2;
+G=[.5*(dt^2); dt;.5*(dt^2);dt];
+Q=G*var_Q*G';
+Q=[Q zeros(4,2);zeros(2,4) Qc]

@@ -52,6 +52,15 @@ var_Qc=.01; % current velocity, .01 is baseline
 Q=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2,var_Qc^2,var_Qc^2]);
 % Q_RA=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2]);%,var_Qc^2,var_Qc^2]);
 
+%Compute Q with white noise acceleration plus process noise for the current
+% var_Q=.01^2;
+% var_Qc=.1^2;
+% Qc=diag([var_Qc var_Qc]); 
+% %var_Q=.0001^2;
+% G=[.5*(dt^2); dt;.5*(dt^2);dt];
+% Q=G*var_Q*G';
+% Q=[Q zeros(4,2);zeros(2,4) Qc];
+
 %Compute R, the covariance matrix associated with measurement error
 var_Rr_r=1^2; % range
 var_Ra_r=deg2rad(.35^2); % azimuth

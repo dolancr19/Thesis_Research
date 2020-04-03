@@ -3,7 +3,7 @@ clear variables;
 clc
 
 %% Define contants
-iterations=10;
+iterations=1;
 freq=10; %Number of cycles per second
 steps=4000*freq; %# of filter steps desired
 track0=build_track(freq,steps); %build simulated values for speed through the water and heading
