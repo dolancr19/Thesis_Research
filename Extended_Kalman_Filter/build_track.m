@@ -98,7 +98,7 @@ for ii=1:steps
         track.hdg(ii)=30;
     elseif ii<=(steps*.5)+(180*freq)
         track.stw(ii)=.5;
-        track.hdg(ii)=track.hdg(ii-1)-.1;
+        track.hdg(ii)=track.hdg(ii-1)-(1/freq);
     else 
         track.stw(ii)=.5;
         track.hdg(ii)=-150;

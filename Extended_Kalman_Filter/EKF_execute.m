@@ -1,18 +1,19 @@
 %% Prepare workspace
 clear variables;
-clc
+close all;
+clc;
 
 %% Define contants
-iterations=1;
-freq=10; %Number of cycles per second
-steps=4000*freq; %# of filter steps desired
+iterations=10;
+freq=1; %Number of cycles per second
+steps=3600*freq; %# of filter steps desired
 track0=build_track(freq,steps); %build simulated values for speed through the water and heading
 speeds=[0];
 headings=[0];
 
 v_k_full=randn(4,steps);
 set0=.25;
-drift0=60;
+drift0=90-60;
 variation=0; % zero for constant current, non-zero defines band for oscillating current
 % current=build_current(steps, set0, drift0, variation);
 
@@ -66,6 +67,8 @@ save(string(speeds(oo))+'_'+string(headings(pp))+'.mat','data_full','epsilon_bar
 end
 
 %% Plot results
+
+
 chi_sq_upper1=chi2inv(0.995,6*iterations)/iterations;
 chi_sq_upper2=chi2inv(0.995,4*iterations)/iterations;
 chi_sq_lower1=chi2inv(0.005,6*iterations)/iterations;
@@ -75,44 +78,53 @@ figure(1)
 plot(epsilon_bar)
 yline(chi_sq_upper1,'--b');
 yline(chi_sq_lower1,'--b');
-title('10 Run Normalized Estimation Error Squared (NEES)')
+%title('10 Run Normalized Estimation Error Squared (NEES)')
 xlabel('Filter Step')
+xlim([0 steps])
 ylabel('NEES')
+set(gca,'fontsize',16);
 
 figure(2)
 plot(epsilon_v_bar)
 yline(chi_sq_upper2,'--b');
 yline(chi_sq_lower2,'--b');
-title('10 Run Normalized Innovation Squared (NIS)')
+%title('10 Run Normalized Innovation Squared (NIS)')
 xlabel('Filter Step')
+xlim([0 steps])
 ylabel('NIS')
+set(gca,'fontsize',16);
 
 figure(3)
 plot(1:steps,data_full(17,:,1))
-title('Error Covariance Matrix Norm vs Filter Step')
+%title('Error Covariance Matrix Norm vs Filter Step')
 xlabel('Filter Step')
+xlim([0 steps])
 ylabel('Error Covariance Matrix Norm')
+set(gca,'fontsize',16);
 
 figure(4)
 reset(gca)
 yyaxis left
 plot(1:steps,data_full(18,:,1))
-title('Filter Error vs Filter Step')
+%title('Filter Error vs Filter Step')
 xlabel('Filter Step')
+xlim([0 steps])
 ylabel('Filter Error (m)')
 yyaxis right
 plot(1:steps,data_full(19,:,1))
 ylabel('Filter Error (degrees)')
 legend('Position Error','Azimuth Error')
+set(gca,'fontsize',16);
 
 figure(5)
 reset(gca)
 plot(data_full(7,:,1),data_full(9,:,1),data_full(15,:,1),data_full(16,:,1))
 axis equal
-title('Acutal Position vs Filter Output Position')
+%title('Acutal Position vs Filter Output Position')
 xlabel('Easting position (m)')
 ylabel('Northing position (m)')
 legend('Filter Output','Actual Position','location','southeast')
+set(gca,'fontsize',16);
 
 figure(6)
 reset(gca)
@@ -124,6 +136,7 @@ axis([0 steps -3 3])
 title('Easting Position')
 xlabel('Filter Step')
 ylabel('NMEE')
+set(gca,'fontsize',12);
 
 ax2 = subplot(6,1,2);
 x = 1:steps;
@@ -133,6 +146,7 @@ axis([0 steps -3 3])
 title('Easting STW')
 xlabel('Filter Step')
 ylabel('NMEE')
+set(gca,'fontsize',12);
 
 ax3 = subplot(6,1,3);
 x = 1:steps;
@@ -142,6 +156,7 @@ axis([0 steps -3 3])
 title('Northing Position')
 xlabel('Filter Step')
 ylabel('NMEE')
+set(gca,'fontsize',12);
 
 ax4 = subplot(6,1,4);
 x = 1:steps;
@@ -151,6 +166,7 @@ axis([0 steps -3 3])
 title('Northing STW')
 xlabel('Filter Step')
 ylabel('NMEE')
+set(gca,'fontsize',12);
 
 ax5 = subplot(6,1,5);
 x = 1:steps;
@@ -160,6 +176,7 @@ axis([0 steps -3 3])
 title('Easting Current')
 xlabel('Filter Step')
 ylabel('NMEE')
+set(gca,'fontsize',12);
 
 ax6 = subplot(6,1,6);
 x = 1:steps;
@@ -169,6 +186,7 @@ axis([0 steps -3 3])
 title('Northing Current')
 xlabel('Filter Step')
 ylabel('NMEE')
+set(gca,'fontsize',12);
 
 yline(ax1,2.57/sqrt(iterations),'--b');
 yline(ax2,2.57/sqrt(iterations),'--b');
@@ -183,7 +201,7 @@ yline(ax4,-2.57/sqrt(iterations),'--b');
 yline(ax5,-2.57/sqrt(iterations),'--b');
 yline(ax6,-2.57/sqrt(iterations),'--b');
 
-sgtitle('10 Run Normalized Mean Estimation Error (NMEE)')
+%sgtitle('10 Run Normalized Mean Estimation Error (NMEE)')
 
 mag=hypot(data_full(11,:,1),data_full(12,:,1));
 dir=atan2d(data_full(12,:,1),data_full(11,:,1));
@@ -192,11 +210,15 @@ figure(7)
 reset(gca)
 yyaxis left
 plot(1:steps,current.set,1:steps,mag)
-title('Calculated Current vs Filter Step')
+%title('Calculated Current vs Filter Step')
 xlabel('Filter Step')
 ylabel('Magnitude (m/s)')
 axis([1 steps 0 1])
 yyaxis right
-plot(1:steps,current.drift,1:steps,dir)
+plot(1:steps,90.-current.drift,1:steps,90.-dir)
 ylabel('Direction (degrees)')
 axis([1 steps -180 180])
+set(gca,'fontsize',16);
+
+mean(epsilon_bar)
+mean(epsilon_v_bar)

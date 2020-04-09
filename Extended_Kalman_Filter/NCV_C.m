@@ -46,8 +46,8 @@ x_k_plus=x_k_minus;
 % x_k_plus_RA=x_k_plus(1:4,1);
 
 %Define Q, the covariance matrix for noise associated with the state vector
-var_Qp=.4; % position .4 last baseline
-var_Qw=.04; % water referenced velocity, .04 is baseline
+var_Qp=.575; % position .575 last baseline
+var_Qw=.02; % water referenced velocity, .02 is baseline
 var_Qc=.01; % current velocity, .01 is baseline
 Q=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2,var_Qc^2,var_Qc^2]);
 % Q_RA=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2]);%,var_Qc^2,var_Qc^2]);
@@ -62,18 +62,18 @@ Q=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2,var_Qc^2,var_Qc^2]);
 % Q=[Q zeros(4,2);zeros(2,4) Qc];
 
 %Compute R, the covariance matrix associated with measurement error
-var_Rr_r=1^2; % range
-var_Ra_r=deg2rad(.35^2); % azimuth
-var_Rs_r=.1^2; % speed through the water, .1 is baseline
-var_Ra1_r=deg2rad(.35^2); % heading
+var_Rr_r=1^2; % range 1 last baseline
+var_Ra_r=deg2rad(.55^2); % azimuth .55 last baseline
+var_Rs_r=.5^2; % speed through the water, .5 is baseline
+var_Ra1_r=deg2rad(.55^2); % heading .55 last baseline
 %radians
 
 R=zeros(4); %normal
 % R=zeros(2); %remove simulated iUSBL measurements for bias testing
 
 %Initialize error covariance matrices
-var_Pr=1^2; % position
-var_Ps=.1^2; % velocity
+var_Pr=0.5^2; % position
+var_Ps=.05^2; % velocity
 P_minus=diag([var_Pr,var_Ps,var_Pr,var_Ps,var_Ps,var_Ps]);
 P_plus=P_minus;
 
@@ -135,7 +135,10 @@ for ii=1:steps
     
         
     x_act=[range_x;stw0_x;range_y;stw0_y;current.set(ii)*cosd(current.drift(ii));current.set(ii)*sind(current.drift(ii))];
-    
+ 
+%         %Executes the filter at the specified frequency with one second
+%     %measurement updates.  Simulates a 1 Hz iUSBL transmission.
+%     if ii==1 || mod(ii,freq)==0
     % Calculate converted measurement bias
     %Normal
     mu_t=[range*cos(azi_r)*((exp(-.5*var_Ra_r))-1);stw*cos(hdg_r)*((exp(-.5*var_Ra1_r))-1);range*sin(azi_r)*((exp(-.5*var_Ra_r))-1);stw*sin(hdg_r)*((exp(-.5*var_Ra1_r))-1)];
@@ -183,7 +186,8 @@ for ii=1:steps
 %         D_Rs = D_R(ind,ind);
 %         V_Rs = V_R(:,ind);
     d=diag(D_R);
-    d=real(sqrt(d));
+    %d=real(sqrt(d));
+    d=sqrt(d);
     v_k=V_R*(d.*v_k); %varible noise for Monte Carlo testing
 %     v_k=V_R*(d.*v_k_full(:,ii)); %same noise for bias testing
     z_k=[range_x;stw_x;range_y;stw_y]+v_k-mu_t;%+b; %normal
@@ -204,6 +208,12 @@ for ii=1:steps
     %Update error covariance matrix with new Kalman Gain
     %Joseph stabilized equation
     P_plus=(eye(6)-K*H)*P_minus*((eye(6)-K*H).')+K*R*K.';
+%     else
+%        x_k_plus=x_k_minus;
+%        P_plus=P_minus;
+%     end  
+    
+    
     P_plus_out(:,ii)=diag(P_plus);
     
 %     [x_k_plus_RA,P_plus_RA]= NCV_C_RA(freq,x_k_plus_RA,P_plus_RA, Q_RA,v_k,range_x,range_y);
@@ -228,7 +238,7 @@ for ii=1:steps
     
     %Calculate the normalized estimation error squared (NEES)
     x_err=x_act-x_k_plus;
-    epsilon(ii)=x_err.'*inv(P_plus)*x_err;
+    epsilon(ii)=x_err.'*(P_plus\x_err);
     
     %Calculate the normalized mean estimation error (NMEE)
     for jj=1:length(x_k_plus)
