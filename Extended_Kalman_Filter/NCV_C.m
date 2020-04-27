@@ -47,7 +47,7 @@ x_k_plus=x_k_minus;
 
 %Define Q, the covariance matrix for noise associated with the state vector
 var_Qp=.575; % position .575 last baseline
-var_Qw=.02; % water referenced velocity, .02 is baseline
+var_Qw=.035; % water referenced velocity, .02 is baseline
 var_Qc=.01; % current velocity, .01 is baseline
 Q=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2,var_Qc^2,var_Qc^2]);
 % Q_RA=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2]);%,var_Qc^2,var_Qc^2]);

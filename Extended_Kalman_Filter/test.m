@@ -108,11 +108,15 @@
 % test_string(2)=.1;
 % string(test_string(1))+'_'+string(test_string(2))
 
-dt=1;
-var_Q=.1^2;
-var_Qc=.01;
-Qc=diag([var_Qc var_Qc]); 
-%var_Q=.0001^2;
-G=[.5*(dt^2); dt;.5*(dt^2);dt];
-Q=G*var_Q*G';
-Q=[Q zeros(4,2);zeros(2,4) Qc]
+% dt=1;
+% var_Q=.1^2;
+% var_Qc=.01;
+% Qc=diag([var_Qc var_Qc]); 
+% %var_Q=.0001^2;
+% G=[.5*(dt^2); dt;.5*(dt^2);dt];
+% Q=G*var_Q*G';
+% Q=[Q zeros(4,2);zeros(2,4) Qc]
+
+bias_mag=.0874;
+var_Qb = 9.5*bias_mag^2 + -0.75*bias_mag + 0.12
+%     Q(8,8)=var_Qb^2;
