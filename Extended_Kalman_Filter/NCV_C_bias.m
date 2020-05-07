@@ -52,7 +52,7 @@ x_k_plus=x_k_minus;
 var_Qp=.575; % position .575 last baseline
 var_Qw=.025; % water referenced velocity, .035 is baseline
 var_Qc=.01; % current velocity, .01 is baseline
-var_Qb=.005; % 1.5 * bias
+var_Qb=.01; % 1.5 * bias
 Q=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2,var_Qc^2,var_Qc^2,var_Qb^2]);
 % Q_RA=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2]);%,var_Qc^2,var_Qc^2]);
 
@@ -113,7 +113,7 @@ for ii=1:steps
     %Calculate state estimate and error covariance matrix for next step
     x_k_minus=F*x_k_plus;
     bias_noise=randn(1,1)*.0075;%var_Qb;
-    x_k_minus(7,1)=x_k_minus(7,1)+bias_noise;
+    x_k_minus(7,1)=x_k_minus(7,1);%+bias_noise;
     P_minus=F*P_plus*F.'+Q;
     P_minus_out(:,ii)=diag(P_minus);    
     data(1:7,ii)=x_k_minus;
@@ -180,7 +180,8 @@ for ii=1:steps
     
     R(2,4)=sin(hdg_r)*cos(hdg_r)*exp(-2*var_Ra1_r)*(var_Rs_rm+stw^2*(1-exp(var_Ra1_r)));
     R(4,2)=R(2,4);
-    
+
+       
 %     R=R+b_cov;
 
 %     %Remove simulated iUSBL measurements for bias testing

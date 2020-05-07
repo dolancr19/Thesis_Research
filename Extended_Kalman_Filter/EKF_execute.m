@@ -4,11 +4,11 @@ close all;
 clc;
 
 %% Define contants
-iterations=1;
+iterations=10;
 freq=1; %Number of cycles per second
 steps=3600*freq; %# of filter steps desired
 track0=build_track(freq,steps); %build simulated values for speed through the water and heading
-speeds=[.2];
+speeds=[.3];
 headings=[0];
 
 v_k_full=randn(4,steps);
@@ -62,7 +62,8 @@ for ii=1:iterations
 %     [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current);
 %     [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_bias(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,track0);
 %     [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_C(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0);
-    [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_C_bias(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0,stw_bias);
+%     [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_C_bias(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0,stw_bias);
+    [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_C_bias_hybrid(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0,stw_bias);
     data_full(:,:,ii)=data;
     epsilon_full(ii,:)=epsilon;
     epsilon_bar=epsilon_bar+epsilon;
@@ -94,6 +95,7 @@ yline(chi_sq_lower1,'--b');
 %title('10 Run Normalized Estimation Error Squared (NEES)')
 xlabel('Filter Step')
 xlim([0 steps])
+ylim([0 100])
 ylabel('NEES')
 set(gca,'fontsize',16);
 

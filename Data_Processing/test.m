@@ -58,3 +58,42 @@
 % 
 % plot(acoustic_pos(:,1),acoustic_pos(:,2))
 
+%A=[1 2 3;4 -1 -1;5 6 7;8 -1 -1];
+% c1=[1,4,5,8]';
+% c2=[2,-1,6,-1]';
+% A=table(c1,c2);
+% ii=1;
+% while ii<=height(MLErngbrg)
+%     if MLErngbrg.range(ii)<0
+%         MLErngbrg([ii],:)=[];
+%     end
+%     ii=ii+1;
+% end
+
+% toDelete = MLE_RB.range == -1;
+% MLE_RB(toDelete,:) = [];
+
+% e_pos_PF=zeros(length(Interp.Bearing_PF),1);
+% n_pos_PF=zeros(length(Interp.Bearing_PF),1);
+% 
+% for mm=1:length(Interp.Bearing_PF)
+%     acoustic_bearing_PF=90-(Interp.NAV_HEADING(mm)-Interp.Bearing_PF(mm));
+%     if acoustic_bearing_PF>180
+%         acoustic_bearing_PF=acoustic_bearing_PF-360;
+%     elseif acoustic_bearing_PF<-180
+%         acoustic_bearing_PF=acoustic_bearing_PF+360;
+%     end
+%     source_x=Interp.Range_PF(mm)*cosd(acoustic_bearing_PF);
+%     source_y=Interp.Range_PF(mm)*sind(acoustic_bearing_PF);
+% 
+%     e_pos_PF(mm)=Interp.e_gps(mm)-source_x;
+%     n_pos_PF(mm)=Interp.n_gps(mm)-source_y;
+% end
+% figure
+% plot(MLE_RB.time,MLE_RB.range)
+% hold on
+% plot(PF_RB.Time,PF_RB.Range)
+
+A=[1 2 3 4 5 5 6 7 8 8 9 10;1 2 3 4 5 6 7 8 9 10 11 12]';
+[~,ind]=unique(A(:,1));
+A_trim=A(ind,:);

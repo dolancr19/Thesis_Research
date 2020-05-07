@@ -117,6 +117,23 @@
 % Q=G*var_Q*G';
 % Q=[Q zeros(4,2);zeros(2,4) Qc]
 
-bias_mag=.0874;
-var_Qb = 9.5*bias_mag^2 + -0.75*bias_mag + 0.12
-%     Q(8,8)=var_Qb^2;
+% bias_mag=.0874;
+% var_Qb = 9.5*bias_mag^2 + -0.75*bias_mag + 0.12
+% %     Q(8,8)=var_Qb^2;
+
+[~,g] = sgolay(1,7);
+dt=1;
+p=1;
+e_vel_PF = zeros(length(e_pos_PF),1);
+n_vel_PF = zeros(length(n_pos_PF),1);
+e_vel_PF(:,1) = conv(e_pos_PF, factorial(p)/(-dt)^p * g(:,p+1), 'same');
+n_vel_PF(:,1) = conv(n_pos_PF, factorial(p)/(-dt)^p * g(:,p+1), 'same');
+
+e_vel_PF=e_vel_PF(4:end-3);
+n_vel_PF=n_vel_PF(4:end-3);
+
+
+speed_PF=hypot(e_vel_PF,n_vel_PF);
+plot(speed_PF)
+
+

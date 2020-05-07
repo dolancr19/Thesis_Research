@@ -82,7 +82,7 @@ for ii=2:steps
     
     range=Interp.Range(ii);
     azi_r=deg2rad(acoustic_bearing);
-    stw=Interp.NAV_SPEED(ii)+.1;
+    stw=Interp.NAV_SPEED(ii);
     hdg_r=deg2rad(90-Interp.NAV_HEADING(ii));
     
     
