@@ -70,8 +70,8 @@
 %     ii=ii+1;
 % end
 
-% toDelete = MLE_RB.range == -1;
-% MLE_RB(toDelete,:) = [];
+toDelete = MLE_RB.range == -1;
+MLE_RB(toDelete,:) = [];
 
 % e_pos_PF=zeros(length(Interp.Bearing_PF),1);
 % n_pos_PF=zeros(length(Interp.Bearing_PF),1);
@@ -94,6 +94,6 @@
 % hold on
 % plot(PF_RB.Time,PF_RB.Range)
 
-A=[1 2 3 4 5 5 6 7 8 8 9 10;1 2 3 4 5 6 7 8 9 10 11 12]';
-[~,ind]=unique(A(:,1));
-A_trim=A(ind,:);
+% A=[1 2 3 4 5 5 6 7 8 8 9 10;1 2 3 4 5 6 7 8 9 10 11 12]';
+% [~,ind]=unique(A(:,1));
+% A_trim=A(ind,:);

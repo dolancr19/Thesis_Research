@@ -48,15 +48,15 @@ x_k_plus=x_k_minus;
 
 %Define Q, the covariance matrix for noise associated with the state vector
 var_Qp=.575; % position .575 last baseline
-var_Qw=.025; % water referenced velocity, .035 is baseline
+var_Qw=.025; % water referenced velocity, .025 is baseline
 var_Qc=.01; % current velocity, .01 is baseline
-var_Qb=.001; % .005 is baseline
+var_Qb=.001; % .001 is baseline
 Q=diag([var_Qp^2,var_Qw^2,var_Qp^2,var_Qw^2,var_Qc^2,var_Qc^2,var_Qb^2]);
 
 %Compute R, the covariance matrix associated with measurement error
 var_Rr_r=1^2; % range 1 last baseline
 var_Ra_r=deg2rad(.55^2); % azimuth .55 last baseline
-var_Rs_r=.5^2; % speed through the water, .5 is baseline
+var_Rs_r=1.5^2; % speed through the water, .5 is baseline
 var_Ra1_r=deg2rad(.55^2); % heading .55 last baseline
 %radians
 

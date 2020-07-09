@@ -8,7 +8,7 @@ iterations=10;
 freq=1; %Number of cycles per second
 steps=3600*freq; %# of filter steps desired
 track0=build_track(freq,steps); %build simulated values for speed through the water and heading
-speeds=[.3];
+speeds=[0];
 headings=[0];
 
 v_k_full=randn(4,steps);
@@ -17,12 +17,12 @@ drift0=90-60;
 variation=0; % zero for constant current, non-zero defines band for oscillating current
 % current=build_current(steps, set0, drift0, variation);
 
-% data_full=zeros(27,steps,iterations); % NCV_C
-% mu_full=zeros(6,steps,iterations); % NCV_C
-% mu_bar=zeros(6,steps); % NCV_C
-data_full=zeros(29,steps,iterations); % NCV_C_bias
-mu_full=zeros(7,steps,iterations); % NCV_C_bias
-mu_bar=zeros(7,steps); % NCV_C_bias
+data_full=zeros(27,steps,iterations); % NCV_C
+mu_full=zeros(6,steps,iterations); % NCV_C
+mu_bar=zeros(6,steps); % NCV_C
+% data_full=zeros(29,steps,iterations); % NCV_C_bias
+% mu_full=zeros(7,steps,iterations); % NCV_C_bias
+% mu_bar=zeros(7,steps); % NCV_C_bias
 % data_full=zeros(29,steps,iterations); % NCV_bias
 % mu_full=zeros(7,steps,iterations); % NCV_bias
 % mu_bar=zeros(7,steps); % NCV_bias
@@ -61,9 +61,9 @@ for ii=1:iterations
 
 %     [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current);
 %     [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_bias(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,track0);
-%     [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_C(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0);
+    [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_C(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0);
 %     [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_C_bias(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0,stw_bias);
-    [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_C_bias_hybrid(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0,stw_bias);
+%     [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_C_bias_hybrid(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0,stw_bias);
     data_full(:,:,ii)=data;
     epsilon_full(ii,:)=epsilon;
     epsilon_bar=epsilon_bar+epsilon;
@@ -95,7 +95,7 @@ yline(chi_sq_lower1,'--b');
 %title('10 Run Normalized Estimation Error Squared (NEES)')
 xlabel('Filter Step')
 xlim([0 steps])
-ylim([0 100])
+ylim([0 20])
 ylabel('NEES')
 set(gca,'fontsize',16);
 
@@ -110,9 +110,9 @@ ylabel('NIS')
 set(gca,'fontsize',16);
 
 figure(3)
-% plot(1:steps,data_full(17,:,1)) % NCV_C
+plot(1:steps,data_full(17,:,1)) % NCV_C
 % plot(1:steps,data_full(21,:,1)) % NCV_C_bias
-plot(1:steps,data_full(19,:,1)) % NCV_bias
+% plot(1:steps,data_full(19,:,1)) % NCV_bias
 %title('Error Covariance Matrix Norm vs Filter Step')
 xlabel('Filter Step')
 xlim([0 steps])
@@ -122,26 +122,26 @@ set(gca,'fontsize',16);
 figure(4)
 reset(gca)
 yyaxis left
-% plot(1:steps,data_full(18,:,1)) % NCV_C
+plot(1:steps,data_full(18,:,1)) % NCV_C
 % plot(1:steps,data_full(22,:,1)) %NCV_C_bias
-plot(1:steps,data_full(20,:,1)) % NCV_bias
+% plot(1:steps,data_full(20,:,1)) % NCV_bias
 %title('Filter Error vs Filter Step')
 xlabel('Filter Step')
 xlim([0 steps])
 ylabel('Filter Error (m)')
 yyaxis right
-% plot(1:steps,data_full(19,:,1)) % NCV_C
+plot(1:steps,data_full(19,:,1)) % NCV_C
 % plot(1:steps,data_full(23,:,1)) % NCV_C_bias
-plot(1:steps,data_full(21,:,1)) % NCV_bias
+% plot(1:steps,data_full(21,:,1)) % NCV_bias
 ylabel('Filter Error (degrees)')
 legend('Position Error','Azimuth Error')
 set(gca,'fontsize',16);
 
 figure(5)
 reset(gca)
-% plot(data_full(7,:,1),data_full(9,:,1),data_full(15,:,1),data_full(16,:,1)) % NCV_C
+plot(data_full(7,:,1),data_full(9,:,1),data_full(15,:,1),data_full(16,:,1)) % NCV_C
 % plot(data_full(9,:,1),data_full(11,:,1),data_full(19,:,1),data_full(20,:,1)) % NCV_C_bias
-plot(data_full(8,:,1),data_full(10,:,1),data_full(17,:,1),data_full(18,:,1)) % NCV_bias
+% plot(data_full(8,:,1),data_full(10,:,1),data_full(17,:,1),data_full(18,:,1)) % NCV_bias
 
 axis equal
 %title('Acutal Position vs Filter Output Position')
@@ -257,14 +257,14 @@ yline(ax6,-2.57/sqrt(iterations),'--b');
 % %sgtitle('10 Run Normalized Mean Estimation Error (NMEE)')
 
 % NCV_C
-% mag=hypot(data_full(11,:,1),data_full(12,:,1)); 
-% dir=atan2d(data_full(12,:,1),data_full(11,:,1));
+mag=hypot(data_full(11,:,1),data_full(12,:,1)); 
+dir=atan2d(data_full(12,:,1),data_full(11,:,1));
 % NCV_C_bias
 % mag=hypot(data_full(13,:,1),data_full(14,:,1));
 % dir=atan2d(data_full(14,:,1),data_full(13,:,1));
-% NCV_C
-mag=hypot(data_full(12,:,1),data_full(13,:,1)); 
-dir=atan2d(data_full(13,:,1),data_full(12,:,1));
+% NCV_C_bias_hybrid
+% mag=hypot(data_full(12,:,1),data_full(13,:,1)); 
+% dir=atan2d(data_full(13,:,1),data_full(12,:,1));
 
 figure(7)
 reset(gca)
@@ -293,9 +293,16 @@ set(gca,'fontsize',16);
 % reset(gca)
 % plot(1:steps,track.hdg,1:steps,bias_dir)
 
-figure(10)
-reset(gca)
-plot(1:steps,data_full(14,:,1))
+% figure(10)
+% reset(gca)
+% plot(1:steps,data_full(14,:,1))
+% hold on
+% yline((stw0+stw_bias)/stw0)
+% xlim([0 steps])
+% xlabel('Filter Step')
+% ylabel('Bias Ratio')
+% legend('Calculated','Actual')
+% set(gca,'fontsize',12);
 
 mean(epsilon_bar)
 mean(epsilon_v_bar)
