@@ -19,7 +19,7 @@ directory='D:\Documents\Thesis_Research\MIT_Sailing\processed_data\quokka\';
 %variables=["ACOUSTICRB","SOURCEXY", "NAVDR"]; % MOOS data only
 % variables=["PF_RB","NAVDR","ACOUSTICDATA"]; % Particle filter data
 % variables=["MLE_RB","NAVDR","PF_RB","ACOUSTICDATA"]; % MLE data
-variables=["MLE_RB","NAVDR","LBL_XY","SOURCE_XY","piUSBL","NAVXY","LBL_NAV"]; % MIT MLE data
+variables=["MLE_RB_full","NAVDR","LBL_XY","SOURCE_XY","piUSBL","NAVXY","LBL_NAV","MLE_FIX"]; % MIT MLE data
 for ii=1:length(variables)
     filename=directory + string(start_time) + '_' + variables(ii) + '.mat';
     load(filename);
@@ -154,7 +154,7 @@ epsilon_v_bar=(1/length(epsilon_v_trim))*sum(epsilon_v_trim);
 mag=hypot(data(12,:),data(13,:));
 dir=atan2d(data(13,:),data(12,:));
 
-trim_z=zeros(1,length(z_k_out));
+trim_z=zeros(1,length(z_k_out)); %Uncomment to make new MLE fix vector!
 for pp=1:length(z_k_out)
     if z_k_out(1,pp)==0
         trim_z(pp)=0;
@@ -194,25 +194,25 @@ plot(1:steps,data(17,:))
 title('Error Covariance Matrix Norm vs Filter Step')
 xlabel('Filter Step')
 ylabel('Error Covariance Matrix Norm')
-set(gca,'fontsize',16);
+set(gca,'fontsize',20);
 
 figure(2)
 % plot(data(8,:),data(10,:),z_k_out(1,:),z_k_out(2,:),e_pos_PF,n_pos_PF,Interp.e_gps,Interp.n_gps)
-plot(data(8,first:end),data(10,first:end),LBL_NAV.xs(acoustic_start:acoustic_end),LBL_NAV.ys(acoustic_start:acoustic_end),'.',NAVXY.NAV_X(first:last),NAVXY.NAV_Y(first:last))
-% plot(data(8,first:end),data(10,first:end),LBL_NAV.xs(acoustic_start:acoustic_end),LBL_NAV.ys(acoustic_start:acoustic_end))
+plot(data(8,first:end),data(10,first:end),LBL_NAV.xs(acoustic_start:acoustic_end),LBL_NAV.ys(acoustic_start:acoustic_end),'.',NAVXY.NAV_X(first:last),NAVXY.NAV_Y(first:last),'LineWidth',2.0)
+% plot(data(8,first:end),data(10,first:end),LBL_NAV.xs(acoustic_start:acoustic_end),LBL_NAV.ys(acoustic_start:acoustic_end),'.')
 % plot(data(8,:),data(10,:),LBL_XY.xs,LBL_XY.ys,z_k_trim(1,:),z_k_trim(2,:),'.')
 % plot(LBL_XY.xs,LBL_XY.ys,piUSBL.x_absolute,piUSBL.y_absolute,z_k_trim(1,:),z_k_trim(2,:),'.')
 % plot(data(8,first:end),data(10,first:end),LBL_NAV.xs(acoustic_start:acoustic_end),LBL_NAV.ys(acoustic_start:acoustic_end))
-% plot(data(8,first:end),data(10,first:end),LBL_NAV.xs(acoustic_start:acoustic_end),LBL_NAV.ys(acoustic_start:acoustic_end),z_k_trim(1,:),z_k_trim(2,:),'.')
+% plot(data(8,first:end),data(10,first:end),LBL_NAV.xs(acoustic_start:acoustic_end),LBL_NAV.ys(acoustic_start:acoustic_end),'.',z_k_trim(1,:),z_k_trim(2,:),'.')
 
 axis equal
 % title('Filter Output Position')
 xlabel('Easting position (m)')
 ylabel('Northing position (m)')
 legend('Filter Output','LBL Position','Dead Reckoning Position')
-% legend('Filter Output','LBL Position')
+% legend('Filter Output','LBL Position', 'MLE Position')
 % legend('LBL','piUSBL')
-set(gca,'fontsize',16);
+set(gca,'fontsize',20);
 
 figure(3)
 reset(gca)
@@ -226,7 +226,7 @@ yyaxis right
 plot(1:steps,data(20,:),1:steps,data(21,:))
 ylabel('Speed (m/s)')
 legend('Easting Range','Northing Range','STW','Heading')
-set(gca,'fontsize',16);
+set(gca,'fontsize',20);
 
 figure(4)
 % plot(1:steps,mag)
@@ -235,17 +235,17 @@ figure(4)
 % ylabel('Current Magnitude')
 reset(gca)
 yyaxis left
-plot(mag(first:steps))
+plot(mag(first:steps),'LineWidth',2.0)
 %title('Calculated Current vs Filter Step')
 xlabel('Filter Step')
 ylabel('Magnitude (m/s)')
 % axis([1 steps 0 2])
 xlim([0 (last-first)])
 yyaxis right
-plot(plot_dir(first:steps))
+plot(plot_dir(first:steps),'LineWidth',2.0)
 ylabel('Direction (degrees)')
 % axis([1 steps -180 180])
-set(gca,'fontsize',16);
+set(gca,'fontsize',20);
 
 % figure(5)
 % plot(1:steps,plot_dir)
@@ -259,15 +259,15 @@ quiver(data(8,:),data(10,:),data(12,:),data(13,:))
 title('Calculated Current Field')
 xlabel('Easting position (m)')
 ylabel('Northing position (m)')
-set(gca,'fontsize',16);
+set(gca,'fontsize',20);
 
 figure(7)
 reset(gca)
-plot(data(14,first:end))
+plot(data(14,first:end),'LineWidth',2.0)
 xlabel('Filter Step')
 ylabel('Bias Ratio')
 xlim([0 (last-first)])
-set(gca,'fontsize',16);
+set(gca,'fontsize',20);
 %% Plot ADCP current
 % if strcmpi(Config.Burst_BottomTrack, 'True')
 %     dataModeWord = 'Comp';
@@ -322,7 +322,7 @@ quiver(data(8,:),data(10,:),scale_factor*data(12,:),scale_factor*data(13,:),'Aut
 % hold on
 % quiver(Interp.e_gps,Interp.n_gps,scale_factor*Interp.avg_VelEast,scale_factor*Interp.avg_VelNorth,'AutoScale','off')
 hold on
-quiver(-100,-100,scale_factor*0,scale_factor*1,'AutoScale','off')
+quiver(-50,-160,scale_factor*0,scale_factor*1,'AutoScale','off')
 axis equal
 % legend('Calculated current','Measured current','1 m/s')
 legend('Calculated current','1 m/s')

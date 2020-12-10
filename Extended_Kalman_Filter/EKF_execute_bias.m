@@ -152,81 +152,81 @@ set(gca,'fontsize',16);
 
 figure(6)
 reset(gca)
-ax1 = subplot(6,1,1); % NCV_C
+ax1 = subplot(7,1,1); % NCV_C
 % ax1 = subplot(8,1,1); %NCV_C_bias
 x = 1:steps;
 y1 = mu_bar(1,:); 
 plot(ax1,x,y1)
-axis([0 steps -3 3])
-title('Easting Position')
-xlabel('Filter Step')
-ylabel('NMEE')
+axis([0 steps -2 2])
+%title('Easting Position')
+%xlabel('Filter Step')
+ylabel('Easting Position NMEE')
 set(gca,'fontsize',12);
 
-ax2 = subplot(6,1,2); % NCV_C
+ax2 = subplot(7,1,2); % NCV_C
 % ax2 = subplot(8,1,2); % NCV_C_bias
 x = 1:steps;
 y2 = mu_bar(2,:); 
 plot(ax2,x,y2)
-axis([0 steps -3 3])
-title('Easting STW')
-xlabel('Filter Step')
-ylabel('NMEE')
+axis([0 steps -2 2])
+%title('Easting STW')
+%xlabel('Filter Step')
+ylabel('Easting STW NMEE')
 set(gca,'fontsize',12);
 
-ax3 = subplot(6,1,3); % NCV_C
+ax3 = subplot(7,1,3); % NCV_C
 % ax3 = subplot(8,1,3); % NCV_C_bias
 x = 1:steps;
 y3 = mu_bar(3,:); 
 plot(ax3,x,y3)
-axis([0 steps -3 3])
-title('Northing Position')
-xlabel('Filter Step')
-ylabel('NMEE')
+axis([0 steps -2 2])
+%title('Northing Position')
+%xlabel('Filter Step')
+ylabel('Northing Position NMEE')
 set(gca,'fontsize',12);
 
-ax4 = subplot(6,1,4); % NCV_C
+ax4 = subplot(7,1,4); % NCV_C
 % ax4 = subplot(8,1,4); % NCV_C_bias
 x = 1:steps;
 y4 = mu_bar(4,:); 
 plot(ax4,x,y4)
-axis([0 steps -3 3])
-title('Northing STW')
-xlabel('Filter Step')
-ylabel('NMEE')
+axis([0 steps -2 2])
+%title('Northing STW')
+%xlabel('Filter Step')
+ylabel('Northing STW NMEE')
 set(gca,'fontsize',12);
 
-ax5 = subplot(6,1,5); % NCV_C
+ax5 = subplot(7,1,5); % NCV_C
 % ax5 = subplot(8,1,5); % NCV_C_bias
 x = 1:steps;
 y5 = mu_bar(5,:); 
 plot(ax5,x,y5)
-axis([0 steps -3 3])
-title('Easting Current')
-xlabel('Filter Step')
-ylabel('NMEE')
+axis([0 steps -2 2])
+%title('Easting Current')
+%xlabel('Filter Step')
+ylabel('Easting Current NMEE')
 set(gca,'fontsize',12);
 
-ax6 = subplot(6,1,6); % NCV_C
+ax6 = subplot(7,1,6); % NCV_C
 % ax6 = subplot(8,1,6); % NCV_C_bias
 x = 1:steps;
 y6 = mu_bar(6,:); 
 plot(ax6,x,y6)
-axis([0 steps -3 3])
-title('Northing Current')
-xlabel('Filter Step')
-ylabel('NMEE')
+axis([0 steps -2 2])
+%title('Northing Current')
+%xlabel('Filter Step')
+ylabel('Northing Current NMEE')
 set(gca,'fontsize',12);
 
-% ax7 = subplot(8,1,7); % NCV_C_bias
-% x = 1:steps;
-% y7 = mu_bar(7,:); 
-% plot(ax7,x,y7)
-% axis([0 steps -3 3])
-% title('Easting Bias')
-% xlabel('Filter Step')
-% ylabel('NMEE')
-% set(gca,'fontsize',12);
+ax7 = subplot(7,1,7); % NCV_C_bias
+x = 1:steps;
+y7 = mu_bar(7,:); 
+plot(ax7,x,y7)
+axis([0 steps -2 2])
+%title('Bias Ratio')
+xlabel('Filter Step')
+ylabel('Bias Ratio NMEE')
+set(gca,'fontsize',12);
 % 
 % ax8 = subplot(8,1,8); % NCV_C_bias
 % x = 1:steps;
@@ -244,7 +244,7 @@ yline(ax3,2.57/sqrt(iterations),'--b');
 yline(ax4,2.57/sqrt(iterations),'--b');
 yline(ax5,2.57/sqrt(iterations),'--b');
 yline(ax6,2.57/sqrt(iterations),'--b');
-% yline(ax7,2.57/sqrt(iterations),'--b');
+yline(ax7,2.57/sqrt(iterations),'--b');
 % yline(ax8,2.57/sqrt(iterations),'--b');
 yline(ax1,-2.57/sqrt(iterations),'--b');
 yline(ax2,-2.57/sqrt(iterations),'--b');
@@ -252,7 +252,7 @@ yline(ax3,-2.57/sqrt(iterations),'--b');
 yline(ax4,-2.57/sqrt(iterations),'--b');
 yline(ax5,-2.57/sqrt(iterations),'--b');
 yline(ax6,-2.57/sqrt(iterations),'--b');
-% yline(ax7,-2.57/sqrt(iterations),'--b');
+yline(ax7,-2.57/sqrt(iterations),'--b');
 % yline(ax8,-2.57/sqrt(iterations),'--b');
 % %sgtitle('10 Run Normalized Mean Estimation Error (NMEE)')
 
@@ -280,6 +280,14 @@ ylabel('Direction (degrees)')
 axis([1 steps -180 180])
 set(gca,'fontsize',16);
 
+figure(8)
+reset(gca)
+plot(data(14,:))
+xlabel('Filter Step')
+ylabel('Bias Ratio')
+% xlim([0 (last-first)])
+set(gca,'fontsize',16);
+
 % bias_mag=hypot(data_full(32,:,1),data_full(33,:,1));
 % bias_calc=hypot(data_full(15,:,1),data_full(16,:,1));
 % bias_dir=atan2d(data_full(16,:,1),data_full(15,:,1));
@@ -292,18 +300,19 @@ set(gca,'fontsize',16);
 % figure(9)
 % reset(gca)
 % plot(1:steps,track.hdg,1:steps,bias_dir)
-
+%% test
 figure(10)
 reset(gca)
-plot(1:steps,data_full(14,:,1))
+plot(1:steps,data_full(14,:,6))
 hold on
 yline((stw0+stw_bias)/stw0)
 xlim([0 steps])
+ylim([.5 1.5])
 xlabel('Filter Step')
 ylabel('Bias Ratio')
 legend('Calculated','Actual')
 set(gca,'fontsize',12);
-
+%% test
 mean(epsilon_bar)
 mean(epsilon_v_bar)
 % mean(bias_calc)

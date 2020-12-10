@@ -42,7 +42,7 @@ function [data,epsilon_v,rho_bar,P_minus_out,z_k_out,F_out,K_out2,K_out4,acousti
 % n0_vel=stw0*sind(hdg0);
 
     %Initialize state and measurement vectors
-    x_k_minus=[e0_pos;e0_vel;n0_pos;n0_vel;0;0;1.63];
+    x_k_minus=[e0_pos;e0_vel;n0_pos;n0_vel;0;0;1.67];
     data(1:7,first)=x_k_minus;
     x_k_plus=x_k_minus;
     data(8:14,first)=x_k_plus;

@@ -8,7 +8,7 @@ iterations=10;
 freq=1; %Number of cycles per second
 steps=3600*freq; %# of filter steps desired
 track0=build_track(freq,steps); %build simulated values for speed through the water and heading
-speeds=[0];
+speeds=[0.1];
 headings=[0];
 
 v_k_full=randn(4,steps);
@@ -30,7 +30,9 @@ epsilon_full=zeros(iterations,steps);
 epsilon_bar=zeros(1,steps);
 epsilon_v_full=zeros(iterations,steps);
 epsilon_v_bar=zeros(1,steps);
-
+sum_kj=zeros(4,steps);
+sum_kk=zeros(4,steps);
+sum_jj=zeros(4,steps);
 
 
 
@@ -61,7 +63,7 @@ for ii=1:iterations
 
 %     [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current);
 %     [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_bias(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,track0);
-    [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_C(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0);
+    [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out,run_kk,run_jj,run_kj]=NCV_C(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0);
 %     [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_C_bias(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0,stw_bias);
 %     [data,epsilon,epsilon_v,mu,K_out, H_out,P_plus_out,P_minus_out]=NCV_C_bias_hybrid(freq, steps, x0_pos, y0_pos, stw0, hdg0,track, current,v_k_full,track0,stw_bias);
     data_full(:,:,ii)=data;
@@ -71,6 +73,9 @@ for ii=1:iterations
     epsilon_v_bar=epsilon_v_bar+epsilon_v;
     mu_full(:,:,ii)=mu;
     mu_bar=mu_bar+mu;
+    sum_kk=sum_kk+run_kk;
+    sum_jj=sum_jj+run_jj;
+    sum_kj=sum_kj+run_kj;
 end
 
 epsilon_bar=epsilon_bar/iterations;
@@ -303,7 +308,25 @@ set(gca,'fontsize',16);
 % ylabel('Bias Ratio')
 % legend('Calculated','Actual')
 % set(gca,'fontsize',12);
+%% testing
+rho_bar=zeros(4,steps);
+for pp=2:steps
+    rho_bar(1,pp)=sum_kj(1,pp)/sqrt(sum_kk(1,pp)*sum_jj(1,pp));
+    rho_bar(2,pp)=sum_kj(2,pp)/sqrt(sum_kk(2,pp)*sum_jj(2,pp));
+    rho_bar(3,pp)=sum_kj(3,pp)/sqrt(sum_kk(3,pp)*sum_jj(3,pp));
+    rho_bar(4,pp)=sum_kj(4,pp)/sqrt(sum_kk(4,pp)*sum_jj(4,pp));
+end
 
+figure(9)
+plot(rho_bar(1,:))
+hold on
+plot(rho_bar(2,:))
+hold on
+plot(rho_bar(3,:))
+hold on
+plot(rho_bar(4,:))
+%% testing
 mean(epsilon_bar)
 mean(epsilon_v_bar)
+mean(rho_bar(4,:))
 % mean(bias_calc)

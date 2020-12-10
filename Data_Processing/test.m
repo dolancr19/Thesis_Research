@@ -70,8 +70,8 @@
 %     ii=ii+1;
 % end
 
-toDelete = MLE_RB.range == -1;
-MLE_RB(toDelete,:) = [];
+% toDelete = MLE_RB.range == -1;
+% MLE_RB(toDelete,:) = [];
 
 % e_pos_PF=zeros(length(Interp.Bearing_PF),1);
 % n_pos_PF=zeros(length(Interp.Bearing_PF),1);

@@ -29,7 +29,7 @@ function [data,epsilon_v,rho_bar,P_minus_out,z_k_out,F_out,K_out2,K_out4,acousti
     n0_pos=SOURCE_XY.source_y(acoustic_count)-MLE_RB.range(acoustic_count)*sind(acoustic_bearing);
     
     %Initialize state and measurement vectors
-    x_k_minus=[e0_pos;e0_vel;n0_pos;n0_vel;0;0;1.6];
+    x_k_minus=[e0_pos;e0_vel;n0_pos;n0_vel;0;0;1.68];
     data(1:7,first)=x_k_minus;
     x_k_plus=x_k_minus;
     data(8:14,first)=x_k_plus;
@@ -328,7 +328,7 @@ function [data,epsilon_v,rho_bar,P_minus_out,z_k_out,F_out,K_out2,K_out4,acousti
 
         %Define R, the covariance matrix associated with measurement error, value will be
         %calculated during each step of the filter
-        var_Rr_r=50^2; % range 15, 30 quokka
+        var_Rr_r=30^2; % range 15, 30 quokka
         var_Rs_r=1^2; % speed through the water .5
         var_Ra1_r=deg2rad(2^2); % heading 1, 3 quokka
 

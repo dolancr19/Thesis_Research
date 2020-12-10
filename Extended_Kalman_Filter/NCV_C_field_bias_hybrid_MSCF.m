@@ -5,16 +5,29 @@ function [data,epsilon_v,rho_bar,P_minus_out,z_k_out,F_out,K_out2,K_out4,acousti
 
     %Define boundary conditions
 
+acoustic_count=1;
 
-    e0_pos=NAVXY.NAV_X(first);
-    n0_pos=NAVXY.NAV_Y(first);
+    while NAVDR.TIME(first)-MLE_RB.time(acoustic_count)>0
+        acoustic_count=acoustic_count+1;
+    end
+    acoustic_count=acoustic_count-1;
+    acoustic_start=acoustic_count;
 
+    acoustic_bearing=90-(NAVDR.NAV_HEADING(first)-rad2deg(MLE_RB.bearing(acoustic_count)));
+    if acoustic_bearing>180
+        acoustic_bearing=acoustic_bearing-360;
+    elseif acoustic_bearing<-180
+        acoustic_bearing=acoustic_bearing+360;
+    end
+  
     stw0=NAVDR.NAV_SPEED(first);
     hdg0=90-NAVDR.NAV_HEADING(first);
 
     e0_vel=stw0*cosd(hdg0);
     n0_vel=stw0*sind(hdg0);
 
+    e0_pos=SOURCE_XY.source_x(acoustic_count)-MLE_RB.range(acoustic_count)*cosd(acoustic_bearing);
+    n0_pos=SOURCE_XY.source_y(acoustic_count)-MLE_RB.range(acoustic_count)*sind(acoustic_bearing);
 
 % acoustic_bearing=90-(NAVDR.NAV_HEADING(1)-rad2deg(NAVDR.Bearing(1)));
 % if acoustic_bearing>180
@@ -35,7 +48,7 @@ function [data,epsilon_v,rho_bar,P_minus_out,z_k_out,F_out,K_out2,K_out4,acousti
 % n0_vel=stw0*sind(hdg0);
 
     %Initialize state and measurement vectors
-    x_k_minus=[e0_pos;e0_vel;n0_pos;n0_vel;0;0;1];
+    x_k_minus=[e0_pos;e0_vel;n0_pos;n0_vel;0;0;1.76];
     data(1:7,first)=x_k_minus;
     x_k_plus=x_k_minus;
     data(8:14,first)=x_k_plus;
@@ -68,13 +81,7 @@ function [data,epsilon_v,rho_bar,P_minus_out,z_k_out,F_out,K_out2,K_out4,acousti
 
     sigma_k=2;% .9 quokka
 
-    acoustic_count=1;
-
-    while NAVDR.TIME(first)-MLE_RB.time(acoustic_count)>0
-        acoustic_count=acoustic_count+1;
-    end
-    acoustic_count=acoustic_count-1;
-    acoustic_start=acoustic_count;
+    
 
     %Initialize vectors for consistency checks
     %epsilon=zeros(1,steps);

@@ -255,26 +255,84 @@
 % 
 %         H=[0 stw_dx 0 stw_dy 0 0 1;0 hdg_dx 0 hdg_dy 0 0 0];
 % acoustic_count=1;
-% ii=246;
-% while NAVDR.TIME(ii)-MLE_RB.time(acoustic_count)>0
+% ii=5553;
+% while NAVDR.TIME(ii)-LBL_NAV.time(acoustic_count)>0
 %     acoustic_count=acoustic_count+1;
 % end
 % acoustic_count=acoustic_count-1
-% % NAVDR.TIME(ii)-MLE_RB.time(acoustic_count)
+% NAVDR.TIME(ii)-MLE_RB.time(acoustic_count)
 
 % LBL_NAV(:,1)=time_lbl;
 % LBL_NAV(:,2)=xs_lbl(:,1);
 % LBL_NAV(:,3)=ys_lbl(:,1);
 % LBL_NAV=array2table(LBL_NAV,'VariableNames',{'time','xs','ys'});
-MLE_BRG_deg=zeros(length(MLE_RB.time),1);
-for ii=1:length(MLE_RB.time)
-    acoustic_bearing=rad2deg(MLE_RB.bearing(ii));
-    if acoustic_bearing>180
-        acoustic_bearing=acoustic_bearing-360;
-    elseif acoustic_bearing<-180
-        acoustic_bearing=acoustic_bearing+360;
-    end
-    
-    MLE_BRG_deg(ii)=acoustic_bearing;
-    
-end
+
+% MLE_BRG_deg=zeros(length(MLE_RB.time),1);
+% for ii=1:length(MLE_RB.time)
+%     acoustic_bearing=rad2deg(MLE_RB.bearing(ii));
+%     if acoustic_bearing>180
+%         acoustic_bearing=acoustic_bearing-360;
+%     elseif acoustic_bearing<-180
+%         acoustic_bearing=acoustic_bearing+360;
+%     end
+%     
+%     MLE_BRG_deg(ii)=acoustic_bearing;
+%     
+% end
+% ll=1;
+% for mm=1:length(data(8,:))
+%     if mod(mm,50)==0
+%         quiver_interp(1,ll)=data(8,mm);
+%         quiver_interp(2,ll)=data(10,mm);
+%         quiver_interp(3,ll)=data(12,mm);
+%         quiver_interp(4,ll)=data(13,mm);
+%         ll=ll+1;
+%     end
+% end
+% 
+% scale_factor=30;
+% figure(11)
+% reset(gca)
+% 
+% quiver(quiver_interp(1,:),quiver_interp(2,:),scale_factor*quiver_interp(3,:),scale_factor*quiver_interp(4,:),'AutoScale','off')
+% % hold on
+% % quiver(Interp.e_gps,Interp.n_gps,scale_factor*Interp.avg_VelEast,scale_factor*Interp.avg_VelNorth,'AutoScale','off')
+% hold on
+% quiver(-50,-160,scale_factor*0,scale_factor*1,'AutoScale','off')
+% hold on
+% plot(data(8,first:end),data(10,first:end))
+% axis equal
+% % legend('Calculated current','Measured current','1 m/s')
+% legend('Calculated current','1 m/s', 'Filter calculated track')
+% xlabel('Easting position (m)')
+% ylabel('Northing position (m)')
+
+directory="D:\Documents\Thesis_Research\MIT_Sailing\processed_data\quokka\";
+start_time=1536932173.36;
+%% Define origin of local coordinate system
+lat=42.35846;
+lon=-71.08759;
+
+%% Define UTM structure
+zone=utmzone(lat,lon);
+utmstruct = defaultm('utm'); 
+utmstruct.zone = zone;  
+utmstruct.geoid = wgs84Ellipsoid;
+utmstruct = defaultm(utmstruct);
+
+%% Convert origin to UTM
+[x,y] = mfwdtran(utmstruct,lat,lon);
+% MLE_utm=[z_k_trim(1,:)+x;z_k_trim(2,:)+y];
+% LBL_utm=[LBL_NAV.xs(569:3810)+x LBL_NAV.ys(569:3810)+y]; 
+% LBL_utm=[LBL_XY.xs(569:3810)+x LBL_XY.ys(569:3810)+y]; 
+source_utm=[SOURCE_XY.source_x+x SOURCE_XY.source_y+y];
+
+
+%% Convert UTM to LL
+% [lat1,lon1] = minvtran(utmstruct,MLE_utm(1,:),MLE_utm(2,:));
+% [lat1,lon1] = minvtran(utmstruct,LBL_utm(:,1),LBL_utm(:,2));
+[lat1,lon1] = minvtran(utmstruct,source_utm(:,1),source_utm(:,2));
+s=geoshape(lat1,lon1);
+filename_kml=directory + string(start_time) + "_source.kml";
+% filename_kml=directory + string(start_time) + "_LBL1.kml";
+kmlwrite(filename_kml,s);

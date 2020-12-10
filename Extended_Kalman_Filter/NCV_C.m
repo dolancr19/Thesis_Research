@@ -1,4 +1,4 @@
-function [data,epsilon,epsilon_v,mu, K_out, R_out, P_plus_out, P_minus_out]= NCV_C(freq, steps, x0_pos, y0_pos, stw0, hdg0, track, current,v_k_full,track0)
+function [data,epsilon,epsilon_v,mu, K_out, R_out, P_plus_out, P_minus_out,run_kk,run_jj,run_kj]= NCV_C(freq, steps, x0_pos, y0_pos, stw0, hdg0, track, current,v_k_full,track0)
 % %% Prepare workspace
 % clear variables;
 % clc
@@ -270,6 +270,27 @@ for ii=1:steps
    data(26,ii)=r_k(3,1);
    data(27,ii)=r_k(4,1);
 end
+rho_data=data(24:27,:);
+
+
+    run_kj=zeros(4,steps);
+    run_kk=zeros(4,steps);
+    run_jj=zeros(4,steps);
+    for jj=2:steps
+        run_kj(1,jj)=(rho_data(1,jj)*rho_data(1,jj-1));
+        run_kj(2,jj)=(rho_data(2,jj)*rho_data(2,jj-1));
+        run_kj(3,jj)=(rho_data(3,jj)*rho_data(3,jj-1));
+        run_kj(4,jj)=(rho_data(4,jj)*rho_data(4,jj-1));
+        run_jj(1,jj)=(rho_data(1,jj))^2;
+        run_jj(2,jj)=(rho_data(2,jj))^2;
+        run_jj(3,jj)=(rho_data(3,jj))^2;
+        run_jj(4,jj)=(rho_data(4,jj))^2;
+        run_kk(1,jj)=(rho_data(1,jj-1))^2;
+        run_kk(2,jj)=(rho_data(2,jj-1))^2;
+        run_kk(3,jj)=(rho_data(3,jj-1))^2;
+        run_kk(4,jj)=(rho_data(4,jj-1))^2;
+    end
+    
 epsilon_v(isnan(epsilon_v))=0;
 
 end
